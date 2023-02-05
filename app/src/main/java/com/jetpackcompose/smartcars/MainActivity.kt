@@ -10,8 +10,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.jetpackcompose.smartcars.navigation.AppNavigation
 import com.jetpackcompose.smartcars.ui.login.ui.LoginScreen
 import com.jetpackcompose.smartcars.ui.theme.SmartCarsTheme
+import com.jetpackcompose.smartcars.ui.welcome.ui.WelcomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    LoginScreen()
+                    AppNavigation()
                 }
             }
         }

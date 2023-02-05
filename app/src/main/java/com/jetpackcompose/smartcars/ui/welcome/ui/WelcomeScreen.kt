@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,11 +14,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
+import com.jetpackcompose.smartcars.navigation.AppScreens
 
-@Preview(showBackground = true, showSystemUi = true)
+//@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(navController: NavController) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
         val (foto, BoxDark, btn, text) = createRefs()
@@ -52,7 +53,7 @@ fun WelcomeScreen() {
             fontSize = 35.sp)
 
         Button(onClick = {
-
+            navController.navigate(route = AppScreens.LoginScreen.route)
         },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color.White,

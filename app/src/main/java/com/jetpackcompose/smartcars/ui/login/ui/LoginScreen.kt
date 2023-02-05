@@ -1,37 +1,33 @@
 package com.jetpackcompose.smartcars.ui.login.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
 
 
 
-@Preview(showBackground = true, showSystemUi = true)
+//@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
     Box {
         //Modifier.paint(painterResource(id = R.drawable.loginbg)) -> Imagen de Fondo
         //Image(painter = painterResource(id = R.drawable.loginbg), contentDescription = "",
@@ -41,7 +37,7 @@ fun LoginScreen() {
         Text()
         Row1()
         EmailPass()
-        Btn()
+        Btn(navController)
     }
 
 }
@@ -86,7 +82,7 @@ fun EmailPass() {
 }
 
 @Composable
-fun Btn() {
+fun Btn(navController: NavController) {
     Column(Modifier.padding(top = 620.dp, start = 130.dp)) {
         Button(onClick = {
 
