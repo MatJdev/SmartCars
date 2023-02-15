@@ -5,7 +5,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jetpackcompose.smartcars.ui.login.ui.LoginScreen
+import com.jetpackcompose.smartcars.ui.signup.ui.SignUpScreen
 import com.jetpackcompose.smartcars.ui.welcome.ui.WelcomeScreen
+import com.jetpackcompose.smartcars.ui.home.ui.HomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -16,6 +18,12 @@ fun AppNavigation() {
         }
         composable(route = AppScreens.LoginScreen.route) {
             LoginScreen(navController)
+        }
+        composable(route = AppScreens.SignupScreen.route) {
+            SignUpScreen(navController)
+        }
+        composable(route = AppScreens.HomeScreen.route) {
+            HomeScreen(navController)
         }
         //Todo crear las demas rutas cuando estén las screens terminadas
     }

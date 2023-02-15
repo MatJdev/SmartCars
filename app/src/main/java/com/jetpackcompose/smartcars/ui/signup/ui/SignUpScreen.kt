@@ -1,14 +1,13 @@
-package com.jetpackcompose.smartcars.ui.login.ui
+package com.jetpackcompose.smartcars.ui.signup.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -24,14 +23,9 @@ import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
 
-
-//@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController) {
     Box {
-        //Modifier.paint(painterResource(id = R.drawable.loginbg)) -> Imagen de Fondo
-        //Image(painter = painterResource(id = R.drawable.loginbg), contentDescription = "",
-        //modifier = Modifier.fillMaxWidth())
         BackGround()
         Logo()
         Text()
@@ -46,19 +40,20 @@ fun LoginScreen(navController: NavController) {
 fun Row1() {
     Text(text = "Log in", modifier = Modifier.padding(top = 330.dp, start = 70.dp),
         fontWeight = FontWeight.ExtraBold,
-        style = TextStyle(textDecoration = TextDecoration.Underline,
-        fontSize = 20.sp)
+        style = TextStyle(
+            fontSize = 20.sp)
     )
     Text(text = "Sign up", modifier = Modifier.padding(top = 330.dp, start = 260.dp),
-        fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        fontWeight = FontWeight.Bold, fontSize = 20.sp,
+        style = TextStyle(textDecoration = TextDecoration.Underline))
 }
 
 @Composable
 fun EmailPass() {
-    var textEmail by remember {mutableStateOf("")}
-    var textPass by remember {mutableStateOf("")}
+    var textEmail by remember { mutableStateOf("") }
+    var textPass by remember { mutableStateOf("") }
 
-    Text(text = "Email", modifier = Modifier.padding(top = 390.dp, start = 70.dp))
+    Text(text = "Enter Email", modifier = Modifier.padding(top = 390.dp, start = 70.dp))
     TextField(value = textEmail, onValueChange = { textEmail = it },
         modifier = Modifier
             .padding(top = 420.dp, start = 60.dp)
@@ -69,7 +64,7 @@ fun EmailPass() {
             )
     )
 
-    Text(text = "Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
+    Text(text = "Create Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
     OutlinedTextField(value = textPass, onValueChange = { textPass = it},
         modifier = Modifier
             .padding(top = 520.dp, start = 60.dp)
@@ -85,23 +80,21 @@ fun EmailPass() {
 fun Btn(navController: NavController) {
     Column(Modifier.padding(top = 620.dp, start = 130.dp)) {
         Button(onClick = {
-            navController.navigate(route = AppScreens.HomeScreen.route)
+
         },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFF2C2B34),
                 contentColor = Color.White
             ), modifier = Modifier.width(140.dp)){
-            Text(text="Login")
+            Text(text="Sign Up")
         }
 
-        TextButton(onClick = {
-            navController.navigate(route = AppScreens.SignupScreen.route)
-        },
+        TextButton(onClick = { navController.navigate(route = AppScreens.LoginScreen.route) },
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color(0xFF2C2B34)
             ), modifier = Modifier.padding(start = 10.dp)
         ) {
-            Text(text = "Or sign up here")
+            Text(text = "Or login here")
         }
     }
 
@@ -109,10 +102,10 @@ fun Btn(navController: NavController) {
 
 @Composable
 fun Text() {
-    Text( text = "Hey!\nWelcome Back",
+    Text( text = "Hey!\nJoin Now!",
         modifier = Modifier.padding(top = 190.dp, start = 40.dp),
-    color = Color.White,
-    fontSize = 35.sp)
+        color = Color.White,
+        fontSize = 35.sp)
 }
 
 @Composable
