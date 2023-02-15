@@ -68,7 +68,7 @@ fun EmailPass() {
                 shape = RoundedCornerShape(12.dp)
             )
     )
-
+    //Hay que poner los dos TextFields iguales aún por decidir
     Text(text = "Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
     OutlinedTextField(value = textPass, onValueChange = { textPass = it},
         modifier = Modifier
