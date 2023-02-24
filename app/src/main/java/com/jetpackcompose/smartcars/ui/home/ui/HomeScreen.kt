@@ -1,19 +1,20 @@
 package com.jetpackcompose.smartcars.ui.home.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BatteryChargingFull
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.NearMe
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +40,18 @@ import com.jetpackcompose.smartcars.navigation.AppScreens
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreen(navController: NavController) {
+    /*
     Column {
         info()
         nearestCar()
         profileMap()
         moreCars()
-        menuBar()
+        //menuBar()
+        BottomNavigationBar()
     }
+
+     */
+    Scaffold()
 
 }
 
@@ -108,13 +114,17 @@ fun nearestCar(){
             Icon(
                 Icons.Outlined.NearMe,
                 contentDescription = "",
-                Modifier.padding(start = 20.dp).size(18.dp)
+                Modifier
+                    .padding(start = 20.dp)
+                    .size(18.dp)
             )
             Text(text = "< 2km", modifier = Modifier.padding(start = 2.dp))
             Icon(
                 Icons.Outlined.BatteryChargingFull,
                 contentDescription = "",
-                Modifier.padding(start = 30.dp).size(18.dp)
+                Modifier
+                    .padding(start = 30.dp)
+                    .size(18.dp)
             )
             Text(text = "85%", modifier = Modifier.padding(start = 2.dp))
             Text(text = "10€/h", modifier = Modifier.padding(start = 90.dp))
@@ -143,7 +153,9 @@ fun profileMap(){
                         .transformations(CircleCropTransformation())
                         .build(),
                     contentDescription = null,
-                    modifier = Modifier.clip(CircleShape).size(80.dp)
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(80.dp)
                 )
             }
             Text(text = "Name", textAlign = TextAlign.Center, modifier = Modifier.padding(top = 100.dp))
@@ -198,5 +210,70 @@ fun menuBar(){
         shape = RoundedCornerShape(20.dp)
     ) {
 
+    }
+}
+
+
+@Composable
+fun BottomNavigationBar() {
+    //var ind by remember { mutableStateOf(0)}
+    val items = listOf(
+        AppScreens.HomeScreen,
+        AppScreens.SearchScreen,
+        AppScreens.MapScreen,
+        AppScreens.ProfileScreen
+    )
+    BottomNavigation(
+        backgroundColor = Color(0xFF2C2B34),
+        contentColor = Color.White,
+        modifier = Modifier
+            .padding(start = 10.dp, end = 10.dp)
+            .border(
+                border = BorderStroke(1.dp, Color.LightGray),
+                shape = RoundedCornerShape(20.dp)
+            )
+    ) {
+        items.forEach { item ->
+            BottomNavigationItem(
+                icon = { Icon(imageVector = item.Icon, contentDescription = "") },
+                selectedContentColor = Color.White,
+                unselectedContentColor = Color.White.copy(0.4f),
+                alwaysShowLabel = true,
+                selected = if(item.route == "home_screen"){true}else{false},
+                onClick = {
+                    //navController.navigate(route = item.route)
+                }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun Scaffold() {
+    val scaffoldState = rememberScaffoldState()
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        bottomBar = { BottomNavigationBar() },
+        floatingActionButton = { MyFab() },
+        floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = true
+    ) {
+        Column {
+            info()
+            nearestCar()
+            profileMap()
+            moreCars()
+        }
+    }
+
+}
+
+@Composable
+fun MyFab() {
+    FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = Color(0xFFE6E6E6), contentColor = Color(0xFF2C2B34)) {
+        Icon(imageVector = Icons.Filled.Add, contentDescription = "add")
     }
 }

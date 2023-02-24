@@ -1,8 +1,16 @@
 package com.jetpackcompose.smartcars.navigation
 
-sealed class AppScreens (val route: String) {
-    object WelcomeScreen: AppScreens("welcome_screen")
-    object LoginScreen: AppScreens("login_screen")
-    object SignupScreen: AppScreens("signup_screen")
-    object HomeScreen: AppScreens("home_screen")
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.ui.graphics.vector.ImageVector
+
+sealed class AppScreens(val route: String, val Icon: ImageVector) {
+    object WelcomeScreen: AppScreens("welcome_screen", Icons.Outlined.Home)
+    object LoginScreen: AppScreens("login_screen", Icons.Outlined.Home)
+    object SignupScreen: AppScreens("signup_screen", Icons.Outlined.Home)
+    object HomeScreen: AppScreens("home_screen", Icons.Outlined.Home)
+    object MapScreen: AppScreens("map_screen", Icons.Outlined.LocationOn)
+    object ProfileScreen: AppScreens("profile_screen", Icons.Outlined.Person)
+    object SearchScreen: AppScreens("search_screen", Icons.Outlined.Search)
 }
