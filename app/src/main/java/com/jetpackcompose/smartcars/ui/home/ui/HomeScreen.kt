@@ -213,25 +213,23 @@ fun menuBar(){
     }
 }
 
-
+//Este componente se usa en las demás screens solo se cambia el parámetro que se le pasa
+//es el que indica al usuario en que screen está, ya que cambia el selected a true
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(screen: String) {
     //var ind by remember { mutableStateOf(0)}
     val items = listOf(
         AppScreens.HomeScreen,
         AppScreens.SearchScreen,
         AppScreens.MapScreen,
-        AppScreens.ProfileScreen
+        AppScreens.AccountScreen
     )
     BottomNavigation(
         backgroundColor = Color(0xFF2C2B34),
         contentColor = Color.White,
         modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp)
-            .border(
-                border = BorderStroke(1.dp, Color.LightGray),
-                shape = RoundedCornerShape(20.dp)
-            )
+            .padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
+            .clip(RoundedCornerShape(30))
     ) {
         items.forEach { item ->
             BottomNavigationItem(
@@ -239,7 +237,7 @@ fun BottomNavigationBar() {
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(0.4f),
                 alwaysShowLabel = true,
-                selected = if(item.route == "home_screen"){true}else{false},
+                selected = if(item.route == screen){true}else{false},
                 onClick = {
                     //navController.navigate(route = item.route)
                 }
@@ -256,7 +254,7 @@ fun Scaffold() {
 
     Scaffold(
         scaffoldState = scaffoldState,
-        bottomBar = { BottomNavigationBar() },
+        bottomBar = { BottomNavigationBar("home_screen") },
         floatingActionButton = { MyFab() },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true
@@ -271,6 +269,7 @@ fun Scaffold() {
 
 }
 
+//Este componente se usa en las demás screen se llama directamente desde aquí
 @Composable
 fun MyFab() {
     FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = Color(0xFFE6E6E6), contentColor = Color(0xFF2C2B34)) {

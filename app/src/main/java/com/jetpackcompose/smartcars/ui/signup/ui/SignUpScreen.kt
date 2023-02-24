@@ -1,10 +1,12 @@
 package com.jetpackcompose.smartcars.ui.signup.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,6 +26,7 @@ import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
 
+//Cambiar para usar los mismos componentes del loginScreen
 @Composable
 fun SignUpScreen(navController: NavController) {
     Box {
@@ -58,22 +62,40 @@ fun EmailPass() {
         modifier = Modifier
             .padding(top = 420.dp, start = 60.dp)
             .border(
-                width = 2.dp,
-                brush = Brush.horizontalGradient(listOf(Color.DarkGray, Color.DarkGray)),
+                border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
             )
+            .clip(RoundedCornerShape(30)),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        singleLine = true,
+        maxLines = 1,
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = Color(0xFF2C2B34),
+            backgroundColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
     )
 
     Text(text = "Create Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
-    OutlinedTextField(value = textPass, onValueChange = { textPass = it},
+    TextField(value = textPass, onValueChange = { textPass = it},
         modifier = Modifier
             .padding(top = 520.dp, start = 60.dp)
-            .background(color = Color.White)
             .border(
-                width = 2.dp,
-                brush = Brush.horizontalGradient(listOf(Color.DarkGray, Color.DarkGray)),
+                border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
-            ))
+            )
+            .clip(RoundedCornerShape(30)),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        singleLine = true,
+        maxLines = 1,
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = Color(0xFF2C2B34),
+            backgroundColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
