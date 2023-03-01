@@ -51,7 +51,7 @@ fun HomeScreen(navController: NavController) {
     }
 
      */
-    Scaffold()
+    Scaffold(navController)
 
 }
 
@@ -216,7 +216,7 @@ fun menuBar(){
 //Este componente se usa en las demás screens solo se cambia el parámetro que se le pasa
 //es el que indica al usuario en que screen está, ya que cambia el selected a true
 @Composable
-fun BottomNavigationBar(screen: String) {
+fun BottomNavigationBar(screen: String, navController: NavController) {
     //var ind by remember { mutableStateOf(0)}
     val items = listOf(
         AppScreens.HomeScreen,
@@ -237,24 +237,24 @@ fun BottomNavigationBar(screen: String) {
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(0.4f),
                 alwaysShowLabel = true,
-                selected = if(item.route == screen){true}else{false},
+                selected = item.route == screen,
                 onClick = {
-                    //navController.navigate(route = item.route)
+                    navController.navigate(route = item.route)
                 }
             )
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+//@Preview(showBackground = true, showSystemUi = true)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun Scaffold() {
+fun Scaffold(navController: NavController) {
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
         scaffoldState = scaffoldState,
-        bottomBar = { BottomNavigationBar("home_screen") },
+        bottomBar = { BottomNavigationBar("home_screen", navController) },
         floatingActionButton = { MyFab() },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true
