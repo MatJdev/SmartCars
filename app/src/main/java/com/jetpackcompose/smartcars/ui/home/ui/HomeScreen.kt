@@ -1,5 +1,6 @@
 package com.jetpackcompose.smartcars.ui.home.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -34,10 +35,14 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
 
 //@Preview(showBackground = true, showSystemUi = true)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     /*
@@ -51,6 +56,19 @@ fun HomeScreen(navController: NavController) {
     }
 
      */
+    //Solicita permisos al usuario de Ubicación
+    val permissionState =
+        rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+
+    LaunchedEffect(key1 = true) {
+        permissionState.launchPermissionRequest()
+    }
+
+    if (permissionState.status.isGranted) {
+
+    } else {
+
+    }
     Scaffold(navController)
 
 }
