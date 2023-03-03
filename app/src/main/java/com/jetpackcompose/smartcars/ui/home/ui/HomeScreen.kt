@@ -40,6 +40,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
+import com.jetpackcompose.smartcars.ui.map.ui.MyGoogleMaps
 
 //@Preview(showBackground = true, showSystemUi = true)
 @OptIn(ExperimentalPermissionsApi::class)
@@ -191,10 +192,13 @@ fun profileMap(){
             shape = RoundedCornerShape(20.dp)
         ) {
             //Text(text = "Map", modifier = Modifier.padding(20.dp))
+            /*
             AsyncImage(
                 model = "https://img.freepik.com/premium-vector/street-map-with-pin-routes_23-2147622544.jpg",
                 contentDescription = null,
             )
+            */
+            MyGoogleMaps()
         }
     }
 }
