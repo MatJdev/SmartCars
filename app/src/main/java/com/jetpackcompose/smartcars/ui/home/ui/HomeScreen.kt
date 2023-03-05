@@ -123,7 +123,7 @@ fun nearestCar(){
         Text(text = "Nearest Car", modifier = Modifier.padding(20.dp), fontWeight = FontWeight.Light)
         AsyncImage(
             model = "https://assets.stickpng.com/images/580b585b2edbce24c47b2ccc.png",
-            contentDescription = null,
+            contentDescription = null
         )
         //https://assets.stickpng.com/images/580b585b2edbce24c47b2ccc.png
         //https://www.pngmart.com/files/21/Tesla-Car-Transparent-Background.png
@@ -198,7 +198,8 @@ fun profileMap(){
                 contentDescription = null,
             )
             */
-            MyGoogleMaps()
+            //Crear un nuevo maps solo para mostrar aquí
+            //MyGoogleMaps()
         }
     }
 }
