@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -47,8 +48,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.reflect.KProperty
+import com.google.android.gms.maps.GoogleMap
+
 
 @Composable
 fun MapScreen(navController: NavController) {
@@ -60,7 +67,7 @@ fun MapScreen(navController: NavController) {
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffoldState) {
+fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<String>) {
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
@@ -71,7 +78,7 @@ fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffold
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            MyGoogleMaps(bottomSheetState)
+            MyGoogleMaps(bottomSheetState, modelo)
         }
     }
 
@@ -82,18 +89,20 @@ fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffold
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetScaffold(navController: NavController) {
-    //val scaffoldState = rememberBottomSheetScaffoldState()
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
             initialValue = BottomSheetValue.Collapsed
         )
     )
+    //Habrá que crear variables como esta de modelo para poder cambiar los datos de detro del
+    //BottomSheet desde otros componentes más concretamente desde el componente de los custom markers
+    var modelo = rememberSaveable { mutableStateOf("")}
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            BottomSheet()
+            BottomSheet(modelo)
         },
         sheetPeekHeight = 0.dp,
         sheetShape = RoundedCornerShape(
@@ -104,52 +113,16 @@ fun BottomSheetScaffold(navController: NavController) {
     ) {
         // Screen content
         //MyGoogleMaps()
-        Scaffold(navController, bottomSheetScaffoldState)
+        Scaffold(navController, bottomSheetScaffoldState,modelo)
 
-        /*
-        val locations = listOf(
-            LatLng(36.528311, -6.295017),
-            LatLng(36.528935, -6.295966),
-            LatLng(36.528921, -6.296589),
-            LatLng(36.531182, -6.291643),
-            LatLng(36.529223, -6.289575),
-            LatLng(36.527809, -6.293338)
-        )
-
-        //Indicar en position la ubicación actual del usuario
-        //Para que el mapa se abra en su ubicación
-        val cameraPositionState = rememberCameraPositionState{
-            position = CameraPosition.fromLatLngZoom(locations[0], 17f)
-        }
-
-        GoogleMap(modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true, mapType = MapType.HYBRID),
-            googleMapOptionsFactory = { GoogleMapOptions().mapId(R.string.map_id.toString()) }
-        ) {
-
-            MarkerInfoWindow(
-                state = MarkerState(position = LatLng(36.528470, -6.294143))
-            ){ marker ->
-                Toast.makeText(LocalContext.current, "Funciona", Toast.LENGTH_SHORT).show()
-                val scope = rememberCoroutineScope()
-                scope.launch {
-                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-                        bottomSheetScaffoldState.bottomSheetState.expand()
-                    else
-                        bottomSheetScaffoldState.bottomSheetState.collapse()
-                }
-
-            }
-
-        }
-        */
     }
 }
 
 
 @Composable
-fun BottomSheet() {
+fun BottomSheet(modelo: MutableState<String>) {
+
+    Log.i("TAG", modelo.value)
     Column(modifier = Modifier
         .fillMaxWidth()
         .height(400.dp)){
@@ -174,7 +147,7 @@ fun BottomSheet() {
             Column() {
                 Row(modifier = Modifier.height(180.dp)){
                     Column(Modifier.padding(top = 30.dp, start = 10.dp)){
-                        Text(text = "Tesla Model S", color = Color.White,
+                        Text(text = modelo.value, color = Color.White,
                             fontSize = 25.sp)
                         Spacer(modifier = Modifier.height(15.dp))
                         Row(){
@@ -313,7 +286,7 @@ fun BottomSheet() {
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
+fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<String>) {
     val locations = listOf(
         LatLng(36.528311, -6.295017),
         LatLng(36.528935, -6.295966),
@@ -326,7 +299,7 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
     //Indicar en position la ubicación actual del usuario
     //Para que el mapa se abra en su ubicación
     val cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(locations[0], 17f)
+        position = CameraPosition.fromLatLngZoom(LatLng(36.529058, -6.294142), 17f)
     }
 
 
@@ -345,35 +318,25 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
         googleMapOptionsFactory = { GoogleMapOptions().mapId(R.string.map_id.toString()) }
     ) {
         var loc = locations.shuffled()
+
         /*
-        Marker(
-            state = rememberMarkerState(position = loc[0]),
-            title = "Tesla Model S",
-            snippet = "Disponible",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
+        Polyline(
+            points = listOf(
+                LatLng(36.529058, -6.294142),
+                LatLng(36.528935, -6.295966)
+            ),
+            color = Color.Green
         )
         */
-        /*
-        MarkerInfoWindow(
-            state = MarkerState(position = LatLng(36.528470, -6.294143))
-        ){ marker ->
-            Toast.makeText(LocalContext.current, "Funciona", Toast.LENGTH_SHORT).show()
-            val scope = rememberCoroutineScope()
-            scope.launch {
-                if (bottomSheetState.bottomSheetState.isCollapsed)
-                    bottomSheetState.bottomSheetState.expand()
-                else
-                    bottomSheetState.bottomSheetState.collapse()
-            }
-        }
-        */
+
         MapMarker(
             position = loc[0],
             title = "Tesla Model S",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
         MapMarker(
             position = loc[1],
@@ -381,7 +344,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
         MapMarker(
             position = loc[2],
@@ -389,7 +353,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
         MapMarker(
             position = loc[3],
@@ -397,7 +362,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
         MapMarker(
             position = loc[4],
@@ -405,7 +371,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
         MapMarker(
             position = loc[5],
@@ -413,7 +380,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState) {
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
-            bottomSheetState = bottomSheetState
+            bottomSheetState = bottomSheetState,
+            modeloCar = modelo
         )
     }
 
@@ -441,6 +409,10 @@ fun bitmapDescriptor(
     return BitmapDescriptorFactory.fromBitmap(bm)
 }
 
+private fun <T> MutableState<T>.setValue(value: T) {
+    this.value = value
+}
+
 //Marker custom para poder cambiar el icono
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
@@ -451,7 +423,8 @@ fun MapMarker(
     title: String,
     snippet: String,
     @DrawableRes iconResourceId: Int,
-    bottomSheetState: BottomSheetScaffoldState
+    bottomSheetState: BottomSheetScaffoldState,
+    modeloCar: MutableState<String>
 ) {
     val icon = bitmapDescriptor(
         context, iconResourceId
@@ -464,12 +437,20 @@ fun MapMarker(
     ){ marker ->
         val scope = rememberCoroutineScope()
         scope.launch {
+            modeloCar.setValue(value = title)
             if (bottomSheetState.bottomSheetState.isCollapsed)
                 bottomSheetState.bottomSheetState.expand()
             else
                 bottomSheetState.bottomSheetState.collapse()
         }
+        /*
+        createRoute() //Descomentar cuando se termine de implementar el codigo para llamar a la api
+        Log.i("aris", polyLineOptions.toString())
+        */
+
     }
+
+
 }
 
 @Preview(showBackground = true)
@@ -496,4 +477,48 @@ fun Bg(){
         ) {
         }
     }
+}
+
+//A partir de aquí es para la api de rutas
+private var start: String = "-6.294142,36.529058"
+private var end: String = "-6.295966,36.528935"
+
+
+private fun createRoute() {
+    CoroutineScope(Dispatchers.IO).launch {
+        val call = getRetrofit().create(ApiRutasService::class.java)
+            .getRoute("5b3ce3597851110001cf6248a49d27cc9f7449d29333c8dc442be77e", start, end)
+        if (call.isSuccessful) {
+            drawRoute(call.body())
+        } else {
+            Log.i("aris", "KO")
+        }
+    }
+}
+
+val polyLineOptions = mutableListOf<LatLng>()
+
+private fun drawRoute(routeResponse: RouteResponse?) {
+    //val polyLineOptions = PolylineOptions()
+
+    routeResponse?.features?.first()?.geometry?.coordinates?.forEach {
+        polyLineOptions.add(LatLng(it[1], it[0]))
+    }
+    /*
+    runOnUiThread {
+        //poly = map.addPolyline(polyLineOptions)
+    }
+    Polyline(
+            points = polyLineOptions,
+            color = Color.Green
+        )
+    */
+
+}
+
+private fun getRetrofit(): Retrofit {
+    return Retrofit.Builder()
+        .baseUrl("https://api.openrouteservice.org/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 }
