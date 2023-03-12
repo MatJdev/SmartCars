@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -61,6 +62,7 @@ dependencies {
     implementation 'com.google.maps.android:maps-compose:2.11.0'
     //ConstraintLayout
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
+    implementation 'com.google.firebase:firebase-firestore:24.4.4'
     //Navigation
     def nav_version = "2.5.3"
     implementation("androidx.navigation:navigation-compose:$nav_version")
@@ -76,6 +78,15 @@ dependencies {
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    //Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.2.2')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    //Viewmodel
+    implementation "androidx.fragment:fragment-ktx:1.5.5"
+    def lifecycle_version = "2.4.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    def koin_version = "3.1.4"
+    implementation "io.insert-koin:koin-android:$koin_version"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

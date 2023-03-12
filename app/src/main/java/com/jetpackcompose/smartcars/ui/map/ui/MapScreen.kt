@@ -2,6 +2,7 @@ package com.jetpackcompose.smartcars.ui.map.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
@@ -44,17 +45,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewmodel.compose.viewModel
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.reflect.KProperty
 import com.google.android.gms.maps.GoogleMap
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.jetpackcompose.smartcars.ui.data.DataViewModel
+import com.jetpackcompose.smartcars.ui.data.model.Car
+import androidx.fragment.app.viewModels
+import kotlinx.coroutines.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 @Composable
@@ -67,7 +75,7 @@ fun MapScreen(navController: NavController) {
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<String>) {
+fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<Int>, precio: MutableState<String>) {
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
@@ -78,7 +86,7 @@ fun Scaffold(navController: NavController, bottomSheetState: BottomSheetScaffold
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            MyGoogleMaps(bottomSheetState, modelo)
+            MyGoogleMaps(bottomSheetState, modelo, precio)
         }
     }
 
@@ -97,12 +105,13 @@ fun BottomSheetScaffold(navController: NavController) {
     )
     //Habrá que crear variables como esta de modelo para poder cambiar los datos de detro del
     //BottomSheet desde otros componentes más concretamente desde el componente de los custom markers
-    var modelo = rememberSaveable { mutableStateOf("")}
+    var modelo = rememberSaveable { mutableStateOf(0)}
+    var precio =  rememberSaveable { mutableStateOf("10") }
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            BottomSheet(modelo)
+            BottomSheet(modelo, precio = precio)
         },
         sheetPeekHeight = 0.dp,
         sheetShape = RoundedCornerShape(
@@ -113,16 +122,65 @@ fun BottomSheetScaffold(navController: NavController) {
     ) {
         // Screen content
         //MyGoogleMaps()
-        Scaffold(navController, bottomSheetScaffoldState,modelo)
+        Scaffold(navController, bottomSheetScaffoldState,modelo, precio)
 
     }
 }
 
 
 @Composable
-fun BottomSheet(modelo: MutableState<String>) {
+fun BottomSheet(modelo: MutableState<Int>, dataViewModel: DataViewModel = viewModel(), precio: MutableState<String>) {
+    val getData = dataViewModel.state.value
 
-    Log.i("TAG", modelo.value)
+    Log.i("Datos en Map", getData.toString())
+    /*Log.i("TAG", modelo.value)
+    Log.i("Datos en Map", getData.toString())
+
+    // Obtener una instancia del ViewModel
+
+    // Llamar a la función para cargar los cursos desde Firestore
+    LaunchedEffect(Unit) {
+        viewModel.loadCourses()
+    }
+    // Observar los cambios en el StateFlow usando collectAsState
+    val courses = viewModel.courses.collectAsState().value
+
+    Log.i("Datos 3", courses.toString())*/
+
+    var marca: String by remember { mutableStateOf("Tesla") }
+    var modelo1: String by remember { mutableStateOf("Model S") }
+    var bateria: String by remember { mutableStateOf("55%") }
+    var imgCoche: String by remember { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
+    var motor: String by remember { mutableStateOf("Gas") }
+    var carga: String by remember { mutableStateOf("Carga rápida") }
+    var aceleracion: String by remember { mutableStateOf("2,1 s") }
+    var maletero: String by remember { mutableStateOf("709 Litros") }
+    //var precio: String by remember { mutableStateOf("10") }
+
+    //Timer para que espere medio segundo a que el mapa cargue
+    //Después con la corrutina va comprobando si ha recibido la info de Firestore
+    //comprueba si el array esta vacío y si es así espera con el delay y vuelve a comprobarlo
+    //cuando x fin recibe la info de firestore actualiza los datos
+    Timer().schedule(500) {
+        runBlocking {
+            launch {
+                while (getData == null || getData.isEmpty()) {
+                    delay(200L) // esperar un segundo
+                }
+                // ejecutar código aquí
+                Log.i("datos al final", getData.toString())
+                marca = getData[modelo.value]!!.marca
+                modelo1 = getData[modelo.value]!!.modelo
+                bateria = getData[modelo.value]!!.bateria
+                imgCoche = getData[modelo.value]!!.img
+                motor = getData[modelo.value]!!.motor
+                carga = getData[modelo.value]!!.carga
+                aceleracion = getData[modelo.value]!!.aceleracion
+                maletero = getData[modelo.value]!!.maletero
+            }
+        }
+    }
+
     Column(modifier = Modifier
         .fillMaxWidth()
         .height(400.dp)){
@@ -147,7 +205,7 @@ fun BottomSheet(modelo: MutableState<String>) {
             Column() {
                 Row(modifier = Modifier.height(180.dp)){
                     Column(Modifier.padding(top = 30.dp, start = 10.dp)){
-                        Text(text = modelo.value, color = Color.White,
+                        Text(text = marca + " $modelo1", color = Color.White,
                             fontSize = 25.sp)
                         Spacer(modifier = Modifier.height(15.dp))
                         Row(){
@@ -168,7 +226,7 @@ fun BottomSheet(modelo: MutableState<String>) {
                                     .size(18.dp),
                                 tint = Color.White
                             )
-                            Text(text = "85%", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                            Text(text = bateria, modifier = Modifier.padding(start = 2.dp), color = Color.White)
                         }
                         Spacer(modifier = Modifier.height(45.dp))
                         Text(text = "Características", color = Color.Black,
@@ -177,7 +235,7 @@ fun BottomSheet(modelo: MutableState<String>) {
                     }
                     Column(Modifier.padding(top = 25.dp, end = 10.dp)) {
                         AsyncImage(
-                            model = "https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png",
+                            model = imgCoche,
                             contentDescription = null,
                             Modifier.fillMaxWidth()
                         )
@@ -204,8 +262,8 @@ fun BottomSheet(modelo: MutableState<String>) {
                                     .size(40.dp),
                                 tint = Color(0xFF2C2B34)
                             )
-                            Text(text = "Eléctrico", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Carga rápida", fontSize = 10.sp, color = Color.Gray)
+                            Text(text = motor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text(text = carga, fontSize = 10.sp, color = Color.Gray)
                         }
                     }
                     Card(
@@ -228,7 +286,7 @@ fun BottomSheet(modelo: MutableState<String>) {
                                 tint = Color(0xFF2C2B34)
                             )
                             Text(text = "Aceleración", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "0 - 100 km/h: 2,1 s", fontSize = 10.sp, color = Color.Gray)
+                            Text(text = "0 - 100 km/h: $aceleracion", fontSize = 10.sp, color = Color.Gray)
                         }
                     }
                     Card(
@@ -251,7 +309,7 @@ fun BottomSheet(modelo: MutableState<String>) {
                                 tint = Color(0xFF2C2B34)
                             )
                             Text(text = "C.Maletero", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "709 Litros", fontSize = 10.sp, color = Color.Gray)
+                            Text(text = maletero, fontSize = 10.sp, color = Color.Gray)
                         }
                     }
                 }
@@ -259,7 +317,7 @@ fun BottomSheet(modelo: MutableState<String>) {
                 Spacer(modifier = Modifier.height(30.dp))
 
                 Row(){
-                    Text(text = "10€", Modifier.padding(start = 45.dp, top = 10.dp),
+                    Text(text = "${precio.value} €", Modifier.padding(start = 45.dp, top = 10.dp),
                         fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     Text(text = "/hora", Modifier.padding(top = 23.dp),
                         fontSize = 15.sp)
@@ -281,12 +339,52 @@ fun BottomSheet(modelo: MutableState<String>) {
         }
 
     }
+    /*Log.i("size", getData.size.toString())
+    try {
+        if (getData.size > 0) {
+            bateria = getData[0].bateria
+            imgCoche = getData[0].img
+            motor = getData[0].motor
+            carga = getData[0].carga
+            aceleracion = getData[0].aceleracion
+            maletero = getData[0].maletero
+            precio = getData[0].precio
+        } else {
+            Log.i("Error size", "El size es de: " + getData.size.toString())
+        }
+
+    } catch (e: Error) {
+        Log.d("error", "getDataFromFireStore: $e")
+    }*/
+
+    /*Timer().schedule(20000) {
+        println("mundo")
+        Log.i("datos al final", getData.toString())
+        bateria = getData[0]!!.bateria
+        imgCoche = getData[0]!!.img
+        motor = getData[0]!!.motor
+        carga = getData[0]!!.carga
+        aceleracion = getData[0]!!.aceleracion
+        maletero = getData[0]!!.maletero
+    }*/
+
+
+    /*bateria = getData[0]!!.bateria
+    imgCoche = getData[0]!!.img
+    motor = getData[0]!!.motor
+    carga = getData[0]!!.carga
+    aceleracion = getData[0]!!.aceleracion
+    maletero = getData[0]!!.maletero*/
+    //precio = getData.precio
+
+
+    Log.i("datos al final", getData.toString())
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<String>) {
+fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableState<Int>, precio: MutableState<String>) {
     val locations = listOf(
         LatLng(36.528311, -6.295017),
         LatLng(36.528935, -6.295966),
@@ -336,7 +434,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableStat
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 0
         )
         MapMarker(
             position = loc[1],
@@ -345,7 +445,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableStat
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 1
         )
         MapMarker(
             position = loc[2],
@@ -354,16 +456,20 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableStat
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 2
         )
         MapMarker(
             position = loc[3],
-            title = "Citroën AMI eléctrico",
+            title = "Citroën AMI E",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 3
         )
         MapMarker(
             position = loc[4],
@@ -372,7 +478,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableStat
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 4
         )
         MapMarker(
             position = loc[5],
@@ -381,7 +489,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState, modelo: MutableStat
             iconResourceId = R.drawable.marker5,
             snippet = "Disponible",
             bottomSheetState = bottomSheetState,
-            modeloCar = modelo
+            modeloCar = modelo,
+            precioCar = precio,
+            num = 5
         )
     }
 
@@ -424,7 +534,10 @@ fun MapMarker(
     snippet: String,
     @DrawableRes iconResourceId: Int,
     bottomSheetState: BottomSheetScaffoldState,
-    modeloCar: MutableState<String>
+    modeloCar: MutableState<Int>,
+    precioCar: MutableState<String>,
+    dataViewModel: DataViewModel = viewModel(),
+    num: Int
 ) {
     val icon = bitmapDescriptor(
         context, iconResourceId
@@ -437,7 +550,19 @@ fun MapMarker(
     ){ marker ->
         val scope = rememberCoroutineScope()
         scope.launch {
-            modeloCar.setValue(value = title)
+            modeloCar.setValue(value = num)
+            val getData = dataViewModel.state.value
+            //getData[0]?.let { precioCar.setValue(value = it.precio) }
+            runBlocking {
+                launch {
+                    while (getData == null || getData.isEmpty()) {
+                        delay(200L) // esperar un segundo
+                    }
+                    // ejecutar código aquí
+                    Log.i("datos al final", getData.toString())
+                    precioCar.setValue(getData[num]!!.precio)
+                }
+            }
             if (bottomSheetState.bottomSheetState.isCollapsed)
                 bottomSheetState.bottomSheetState.expand()
             else
