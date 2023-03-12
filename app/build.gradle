@@ -60,6 +60,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.maps.android:maps-compose:2.11.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.6.2'
     //ConstraintLayout
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
     implementation 'com.google.firebase:firebase-firestore:24.4.4'
