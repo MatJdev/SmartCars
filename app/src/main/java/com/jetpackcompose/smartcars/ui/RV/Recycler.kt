@@ -1,6 +1,7 @@
 package com.jetpackcompose.smartcars.ui.RV
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +34,7 @@ import kotlinx.coroutines.launch
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RvScreen(navController: NavController) {
+fun RvScreen() {
 
     val context = LocalContext.current
     val rvState = rememberLazyListState()
@@ -40,8 +42,8 @@ fun RvScreen(navController: NavController) {
 
     LazyColumn(
         state = rvState,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.background(Color.Black),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+        modifier = Modifier.background(Color.White),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         items(getCoches()) { Coche ->
@@ -68,17 +70,17 @@ fun RvScreen(navController: NavController) {
 
 fun getCoches(): List<Coche> {
     return listOf(
-        Coche("Pepe", "Perez", "Electrico", R.drawable.cocheelectrico),
-        Coche("Jose", "Ortega", "Electrico", R.drawable.cocheelectrico),
-        Coche("Miguel", "Garcia", "Electrico", R.drawable.cocheelectrico),
-        Coche("Manuel", "Romero", "Electrico", R.drawable.cocheelectrico),
-        Coche("Saul", "Jimenez", "Electrico", R.drawable.cocheelectrico),
-        Coche("Daniel", "De la Vega", "Electrico", R.drawable.cocheelectrico),
-        Coche("Jose Mari", "Castor", "Electrico", R.drawable.cocheelectrico),
-        Coche("Fernando", "Lobo", "Electrico", R.drawable.cocheelectrico),
-        Coche("Paco", "Ramirez", "Electrico", R.drawable.cocheelectrico),
-        Coche("Fernando", "Alonso", "Electrico", R.drawable.cocheelectrico),
-        Coche("Fernando", "Alonso", "Electrico", R.drawable.cocheelectrico)
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
+        Coche("Tesla", "S", "Electrico", R.drawable.tesla1),
 
     )
 }
@@ -90,43 +92,32 @@ fun ItemCoche(Coche: Coche, onItemSelected: (Coche) -> Unit) {
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth(),
         elevation = 2.dp,
-        backgroundColor = Color.LightGray,
-        shape = RoundedCornerShape(corner = CornerSize(16.dp))
-    ) {
-        Row(modifier = Modifier.padding(20.dp)) {
-            Column(modifier = Modifier.background(color = Color.Black)) {
-                Image(
-                    painter = painterResource(id = Coche.imagen),
-                    contentDescription = "Coche",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .size(110.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
+        backgroundColor =  Color(0xFF2C2B34),
+        shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+        border = BorderStroke(6.dp,Color.Black),
 
-                    )
-                Text(
-                    text = Coche.marca,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    color = Color.White,
-                    fontSize = 28.sp
-                )
-                Text(
-                    text = Coche.modelo,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 15.sp,
-                    color = Color.White
-                )
-                Text(
-                    text = Coche.tipo,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 22.sp,
-                    color = Color.White
-                )
 
+        ) {
+        Row {
+            Image(
+                painter = painterResource(id = Coche.imagen),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(corner = CornerSize(16.dp)))
+            )
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(text = Coche.marca, style = MaterialTheme.typography.h5,color = Color.White)
+                Text(text = Coche.modelo, style = MaterialTheme.typography.subtitle1,color = Color.White)
+                Text(text = Coche.tipo, style = MaterialTheme.typography.subtitle2,color = Color.White)
             }
-
         }
     }
 }

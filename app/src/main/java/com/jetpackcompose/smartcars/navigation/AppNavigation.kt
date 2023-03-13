@@ -29,9 +29,9 @@ fun AppNavigation() {
         composable(route = AppScreens.HomeScreen.route) {
             HomeScreen(navController)
         }
-        composable(route = AppScreens.RvScreen.route){
-            RvScreen(navController)
-        }
+//        composable(route = AppScreens.RvScreen.route){
+//            RvScreen(navController)
+//        }
         composable(route = AppScreens.MapScreen.route){
             MapScreen(navController)
         }

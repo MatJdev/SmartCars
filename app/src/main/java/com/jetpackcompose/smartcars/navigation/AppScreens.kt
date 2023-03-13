@@ -13,5 +13,5 @@ sealed class AppScreens(val route: String, val Icon: ImageVector) {
     object MapScreen: AppScreens("map_screen", Icons.Outlined.LocationOn)
     object AccountScreen: AppScreens("account_screen", Icons.Outlined.Person)
     object SearchScreen: AppScreens("search_screen", Icons.Outlined.Search)
-    object RvScreen: AppScreens("rv_screen", Icons.Outlined.Search)
+//    object RvScreen: AppScreens("rv_screen", Icons.Outlined.Search)
 }
