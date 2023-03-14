@@ -1,71 +1,43 @@
 package com.jetpackcompose.smartcars.ui.map.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.location.Location
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.FabPosition
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import com.jetpackcompose.smartcars.ui.home.ui.BottomNavigationBar
-import com.jetpackcompose.smartcars.ui.home.ui.MyFab
-import com.google.android.gms.location.*
-import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.maps.GoogleMapOptions
-import com.google.android.gms.maps.model.*
-import com.google.maps.android.compose.*
-import com.jetpackcompose.smartcars.R
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.GoogleMapOptions
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.SphericalUtil
+import com.google.maps.android.compose.*
+import com.jetpackcompose.smartcars.R
+import com.jetpackcompose.smartcars.ui.data.DataViewModel
+import com.jetpackcompose.smartcars.ui.home.ui.*
+import kotlinx.coroutines.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.reflect.KProperty
-import com.google.android.gms.maps.GoogleMap
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.jetpackcompose.smartcars.ui.data.DataViewModel
-import com.jetpackcompose.smartcars.ui.data.model.Car
-import androidx.fragment.app.viewModels
-import kotlinx.coroutines.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import java.util.*
-import kotlin.concurrent.schedule
-import com.google.maps.android.SphericalUtil
-import com.google.android.gms.maps.model.LatLng
 
 
 @Composable
@@ -89,7 +61,8 @@ fun Scaffold(navController: NavController,
              motorCar: MutableState<String>,
              cargaCar: MutableState<String>,
              aceleracionCar: MutableState<String>,
-             maleteroCar: MutableState<String>) {
+             maleteroCar: MutableState<String>,
+             distanciaCar: MutableState<Double>) {
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
@@ -102,7 +75,7 @@ fun Scaffold(navController: NavController,
         Column {
             MyGoogleMaps(bottomSheetState, modelo = modelo, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
                 modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
-                aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar)
+                aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar, distanciaCar = distanciaCar)
         }
     }
 
@@ -131,11 +104,12 @@ fun BottomSheetScaffold(navController: NavController) {
     var aceleracionCar =  rememberSaveable { mutableStateOf("2,1 s") }
     var maleteroCar =  rememberSaveable { mutableStateOf("600 Litros") }
     var cargaCar =  rememberSaveable { mutableStateOf("Carga rápida") }
+    var distanciaCar =  rememberSaveable { mutableStateOf(0.0) }
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            BottomSheet(modelo = modelo, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
+            BottomSheet(distancia = distanciaCar, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
             modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
             aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar)
         },
@@ -150,14 +124,14 @@ fun BottomSheetScaffold(navController: NavController) {
         //MyGoogleMaps()
         Scaffold(navController, bottomSheetScaffoldState, modelo = modelo, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
             modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
-            aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar)
+            aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar, distanciaCar = distanciaCar)
 
     }
 }
 
 
 @Composable
-fun BottomSheet(modelo: MutableState<Int>,
+fun BottomSheet(distancia: MutableState<Double>,
                 dataViewModel: DataViewModel = viewModel(),
                 precio: MutableState<String>,
                 imgCar: MutableState<String>,
@@ -255,7 +229,7 @@ fun BottomSheet(modelo: MutableState<Int>,
                                     .size(18.dp),
                                 tint = Color.White
                             )
-                            Text(text = "< 2km", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                            Text(text = "< " + "%.2f".format(distancia.value) + " km", modifier = Modifier.padding(start = 2.dp), color = Color.White)
                             Icon(
                                 Icons.Outlined.BatteryChargingFull,
                                 contentDescription = "",
@@ -432,7 +406,8 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
                  motorCar: MutableState<String>,
                  cargaCar: MutableState<String>,
                  aceleracionCar: MutableState<String>,
-                 maleteroCar: MutableState<String>) {
+                 maleteroCar: MutableState<String>,
+                 distanciaCar: MutableState<Double>) {
     val locations = listOf(
         LatLng(36.528311, -6.295017),
         LatLng(36.528935, -6.295966),
@@ -447,10 +422,19 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
     val distancia1 = SphericalUtil.computeDistanceBetween(locations[0], locations[1])
     Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
 
+    //Ubtener ubicación actual del usuario
+    fusedLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
+
+    obtenerUbicacion(LocalContext.current)
+
+    Log.i("Ubicacion actual", lat.toString() + long.toString())
+
+    var ubicacionActual = LatLng(lat, long)
+
     //Indicar en position la ubicación actual del usuario
     //Para que el mapa se abra en su ubicación
     val cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(36.529058, -6.294142), 17f)
+        position = CameraPosition.fromLatLngZoom(ubicacionActual, 17f)
     }
 
 
@@ -462,13 +446,15 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
         )
     }
 
+    /*var latCar =  rememberSaveable { mutableStateOf(0.0) }
+    var lngCar =  rememberSaveable { mutableStateOf(0.0) }*/
 
     GoogleMap(modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(isMyLocationEnabled = true, mapType = MapType.HYBRID),
         googleMapOptionsFactory = { GoogleMapOptions().mapId(R.string.map_id.toString()) }
     ) {
-        var loc = locations.shuffled()
+        //var loc = locations.shuffled()
 
         /*
         Polyline(
@@ -479,9 +465,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             color = Color.Green
         )
         */
-
+        //Hay que cambiar la posicion de cada marker con la lat y lng de cada objeto coche
         MapMarker(
-            position = loc[0],
+            position = locations[2],
             title = "Tesla Model S",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -497,10 +483,12 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
         MapMarker(
-            position = loc[1],
+            position = locations[4],
             title = "Fiat 500e",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -516,10 +504,12 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
         MapMarker(
-            position = loc[2],
+            position = locations[1],
             title = "MINI Cooper SE",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -535,10 +525,12 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
         MapMarker(
-            position = loc[3],
+            position = locations[5],
             title = "Citroën AMI E",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -554,10 +546,12 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
         MapMarker(
-            position = loc[4],
+            position = locations[0],
             title = "Cupra Born",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -573,10 +567,12 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
         MapMarker(
-            position = loc[5],
+            position = locations[3],
             title = "Tesla model 3",
             context = LocalContext.current,
             iconResourceId = R.drawable.marker5,
@@ -592,7 +588,9 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
             motorCar = motorCar,
             cargaCar = cargaCar,
             aceleracionCar = aceleracionCar,
-            maleteroCar = maleteroCar
+            maleteroCar = maleteroCar,
+            distanciaCar = distanciaCar,
+            ubicacionActual = ubicacionActual
         )
     }
 
@@ -620,7 +618,7 @@ fun bitmapDescriptor(
     return BitmapDescriptorFactory.fromBitmap(bm)
 }
 
-private fun <T> MutableState<T>.setValue(value: T) {
+fun <T> MutableState<T>.setValue(value: T) {
     this.value = value
 }
 
@@ -646,7 +644,9 @@ fun MapMarker(
     motorCar: MutableState<String>,
     cargaCar: MutableState<String>,
     aceleracionCar: MutableState<String>,
-    maleteroCar: MutableState<String>
+    maleteroCar: MutableState<String>,
+    distanciaCar: MutableState<Double>,
+    ubicacionActual: LatLng
 ) {
     val icon = bitmapDescriptor(
         context, iconResourceId
@@ -662,7 +662,7 @@ fun MapMarker(
             modeloNum.setValue(value = num)
             val getData = dataViewModel.state.value
             //getData[0]?.let { precioCar.setValue(value = it.precio) }
-            runBlocking {
+            /*runBlocking {
                 launch {
                     while (getData == null || getData.isEmpty()) {
                         delay(200L) // esperar un segundo
@@ -679,7 +679,23 @@ fun MapMarker(
                     aceleracionCar.setValue(getData[num]!!.aceleracion)
                     maleteroCar.setValue(getData[num]!!.maletero)
                 }
+            }*/
+            while (getData == null || getData.isEmpty()) {
+                delay(200L) // esperar un segundo
             }
+            // ejecutar código aquí
+            Log.i("datos al final", getData.toString())
+            precioCar.setValue(getData[num]!!.precio)
+            imgCar.setValue(getData[num]!!.img)
+            modeloCar.setValue(getData[num]!!.modelo)
+            marcaCar.setValue(getData[num]!!.marca)
+            bateriaCar.setValue(getData[num]!!.bateria)
+            motorCar.setValue(getData[num]!!.motor)
+            cargaCar.setValue(getData[num]!!.carga)
+            aceleracionCar.setValue(getData[num]!!.aceleracion)
+            maleteroCar.setValue(getData[num]!!.maletero)
+            val distancia1 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[num]!!.latitud, getData[num]!!.longitud))
+            distanciaCar.setValue(distancia1/1000)
             if (bottomSheetState.bottomSheetState.isCollapsed)
                 bottomSheetState.bottomSheetState.expand()
             else

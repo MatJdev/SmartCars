@@ -4,7 +4,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -29,6 +31,7 @@ private val LightColorPalette = lightColors(
 
 @Composable
 fun SmartCarsTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    /*
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
@@ -37,6 +40,22 @@ fun SmartCarsTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composa
 
     MaterialTheme(
         colors = colors,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
+    )*/
+    val systemUiController = rememberSystemUiController()
+    var statusBarColor by remember { mutableStateOf(Color.Transparent) }
+
+    // Actualiza el color de la barra de estado cuando se cambia el tema
+    LaunchedEffect(darkTheme) {
+        statusBarColor = if (darkTheme) BgDark else BgDark // Cambia los valores de BgDark y BgLight con los colores que desees
+        systemUiController.setStatusBarColor(statusBarColor)
+        systemUiController.setNavigationBarColor(statusBarColor)
+    }
+
+    MaterialTheme(
+        colors = if (darkTheme) DarkColorPalette else LightColorPalette,
         typography = Typography,
         shapes = Shapes,
         content = content
