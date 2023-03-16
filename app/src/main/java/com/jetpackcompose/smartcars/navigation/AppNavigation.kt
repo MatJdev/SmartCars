@@ -1,11 +1,13 @@
 package com.jetpackcompose.smartcars.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jetpackcompose.smartcars.ui.RV.RvScreen
+import androidx.navigation.navArgument
 import com.jetpackcompose.smartcars.ui.account.ui.AccountScreen
+import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.login.ui.LoginScreen
 import com.jetpackcompose.smartcars.ui.signup.ui.SignUpScreen
 import com.jetpackcompose.smartcars.ui.welcome.ui.WelcomeScreen
@@ -32,8 +34,11 @@ fun AppNavigation() {
 //        composable(route = AppScreens.RvScreen.route){
 //            RvScreen(navController)
 //        }
-        composable(route = AppScreens.MapScreen.route){
-            MapScreen(navController)
+        composable(route = AppScreens.MapScreen.route,
+            arguments = listOf(navArgument("myargs") { type = NavType.StringType })
+            ){backStackEntry ->
+                MapScreen(navController,
+                    backStackEntry.arguments?.getString("myargs"))
         }
         composable(route = AppScreens.AccountScreen.route){
             AccountScreen(navController)
