@@ -125,6 +125,8 @@ fun Btn(navController: NavController) {
         ) {
             Text(text = "Or sign up here")
         }
+
+
     }
 
 }

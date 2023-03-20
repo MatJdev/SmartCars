@@ -48,8 +48,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import com.google.maps.android.SphericalUtil
 import com.jetpackcompose.smartcars.ui.data.DataViewModel
+import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.map.ui.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -172,7 +174,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
     var imgCar =  rememberSaveable { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
     var marcaCar =  rememberSaveable { mutableStateOf("Tesla") }
     var modeloCar =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar =  rememberSaveable { mutableStateOf("85%") }
+    var bateriaCar =  rememberSaveable { mutableStateOf("85") }
     var motorCar =  rememberSaveable { mutableStateOf("Eléctrico") }
     var aceleracionCar =  rememberSaveable { mutableStateOf("2,1 s") }
     var maleteroCar =  rememberSaveable { mutableStateOf("600 Litros") }
@@ -214,6 +216,23 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
         // No se encontró ningún objeto Car cercano
     }
 
+    var Arguments = MyArgs(
+        marca = marcaCar.value,
+        modelo = modeloCar.value,
+        shouldexp = true,
+        img = imgCar.value,
+        motor = motorCar.value,
+        distancia = distCar.value,
+        bateria = bateriaCar.value,
+        precio = precioCar.value,
+        aceleracion = aceleracionCar.value,
+        maletero = maleteroCar.value
+    )
+    // Convertir el objeto a JSON (String) usando Gson
+    val gson = Gson()
+    val myArgsJson = gson.toJson(Arguments)
+
+    Log.i("Json prueba",myArgsJson)
     Card(
         elevation = 10.dp,
         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
@@ -223,7 +242,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
             .height(230.dp),
         backgroundColor = Color(0xFFE6E6E6),
         shape = RoundedCornerShape(20.dp),
-        onClick = { navController.navigate(route = AppScreens.MapScreen.route) }
+        onClick = { navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson)) }
     ) {
         Text(text = "Nearest Car", modifier = Modifier.padding(20.dp), fontWeight = FontWeight.Light)
         AsyncImage(
@@ -251,7 +270,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
                     .padding(start = 30.dp)
                     .size(18.dp)
             )
-            Text(text = bateriaCar.value, modifier = Modifier.padding(start = 2.dp))
+            Text(text = "${bateriaCar.value}%", modifier = Modifier.padding(start = 2.dp))
             Text(text = "${precioCar.value}€/h", modifier = Modifier.padding(start = 70.dp))
         }
 
@@ -311,12 +330,22 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
 
     var marcaCar =  rememberSaveable { mutableStateOf("Tesla") }
     var modeloCar =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar =  rememberSaveable { mutableStateOf("85%") }
+    var bateriaCar =  rememberSaveable { mutableStateOf("85") }
+    var imgCar =  rememberSaveable { mutableStateOf("Model S") }
+    var motorCar =  rememberSaveable { mutableStateOf("85") }
+    var precioCar =  rememberSaveable { mutableStateOf("Model S") }
+    var aceleracionCar =  rememberSaveable { mutableStateOf("85") }
+    var maleteroCar =  rememberSaveable { mutableStateOf("85") }
     var distCar =  rememberSaveable { mutableStateOf(2.0) }
 
     var marcaCar1 =  rememberSaveable { mutableStateOf("Tesla") }
     var modeloCar1 =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar1 =  rememberSaveable { mutableStateOf("85%") }
+    var bateriaCar1 =  rememberSaveable { mutableStateOf("85") }
+    var imgCar1 =  rememberSaveable { mutableStateOf("Model S") }
+    var motorCar1 =  rememberSaveable { mutableStateOf("85") }
+    var precioCar1 =  rememberSaveable { mutableStateOf("Model S") }
+    var aceleracionCar1 =  rememberSaveable { mutableStateOf("85") }
+    var maleteroCar1 =  rememberSaveable { mutableStateOf("85") }
     var distCar1 =  rememberSaveable { mutableStateOf(2.0) }
 
     val scope = rememberCoroutineScope()
@@ -329,12 +358,22 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
         modeloCar.setValue(getData[0]!!.modelo)
         marcaCar.setValue(getData[0]!!.marca)
         bateriaCar.setValue(getData[0]!!.bateria)
+        imgCar.setValue(getData[0]!!.img)
+        motorCar.setValue(getData[0]!!.motor)
+        precioCar.setValue(getData[0]!!.precio)
+        aceleracionCar.setValue(getData[0]!!.aceleracion)
+        maleteroCar.setValue(getData[0]!!.maletero)
         val distancia1 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[0]!!.latitud, getData[0]!!.longitud))
         distCar.setValue(distancia1/1000)
 
         modeloCar1.setValue(getData[1]!!.modelo)
         marcaCar1.setValue(getData[1]!!.marca)
         bateriaCar1.setValue(getData[1]!!.bateria)
+        imgCar1.setValue(getData[1]!!.img)
+        motorCar1.setValue(getData[1]!!.motor)
+        precioCar1.setValue(getData[1]!!.precio)
+        aceleracionCar1.setValue(getData[1]!!.aceleracion)
+        maleteroCar1.setValue(getData[1]!!.maletero)
         val distancia2 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[1]!!.latitud, getData[1]!!.longitud))
         distCar1.setValue(distancia2/1000)
     }
@@ -350,7 +389,7 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
     ) {
         Column(Modifier.padding(start = 20.dp)) {
             Text(text = "More Cars", modifier = Modifier.padding(top = 20.dp, bottom = 10.dp), color = Color.LightGray)
-            fichaCar(marcaCar, modeloCar, bateriaCar, distCar, navController)
+            fichaCar(marcaCar, modeloCar, imgCar, motorCar, distCar, bateriaCar, precioCar, aceleracionCar, maleteroCar, navController)
             Canvas(modifier = Modifier
                 .height(10.dp).width(300.dp)
                 .wrapContentSize()) {
@@ -363,7 +402,7 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            fichaCar(marcaCar1, modeloCar1, bateriaCar1, distCar1, navController)
+            fichaCar(marcaCar1, modeloCar1, imgCar1, motorCar1, distCar1, bateriaCar1, precioCar1, aceleracionCar1, maleteroCar1, navController)
         }
     }
 }
@@ -374,6 +413,22 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
 @Composable
 fun BottomNavigationBar(screen: String, navController: NavController) {
     //var ind by remember { mutableStateOf(0)}
+    var Arguments = MyArgs(
+        marca = "",
+        modelo = "",
+        shouldexp = false,
+        img = "",
+        motor = "",
+        distancia = 0.0,
+        bateria = "",
+        precio = "",
+        aceleracion = "",
+        maletero = ""
+    )
+    // Convertir el objeto a JSON (String) usando Gson
+    val gson = Gson()
+    val myArgsJson = gson.toJson(Arguments)
+
     val items = listOf(
         AppScreens.HomeScreen,
         AppScreens.SearchScreen,
@@ -395,7 +450,13 @@ fun BottomNavigationBar(screen: String, navController: NavController) {
                 alwaysShowLabel = true,
                 selected = item.route == screen,
                 onClick = {
-                    navController.navigate(route = item.route)
+                    Log.i("Item Route", item.route)
+                    if(item.route == "map_screen?myargs={myargs}") {
+                        navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson))
+                    } else {
+                        navController.navigate(route = item.route)
+                    }
+
                 }
             )
         }
@@ -466,9 +527,32 @@ fun miniMap() {
 }
 
 @Composable
-fun fichaCar(marca: MutableState<String>, modelo: MutableState<String>,
-             bateria: MutableState<String>, distancia: MutableState<Double>,
+fun fichaCar(marca: MutableState<String>,
+             modelo: MutableState<String>,
+             img: MutableState<String>,
+             motor: MutableState<String>,
+             distancia: MutableState<Double>,
+             bateria: MutableState<String>,
+             precio: MutableState<String>,
+             aceleracion: MutableState<String>,
+             maletero: MutableState<String>,
              navController: NavController) {
+
+    var Arguments = MyArgs(
+        marca = marca.value,
+        modelo = modelo.value,
+        shouldexp = true,
+        img = img.value,
+        motor = motor.value,
+        distancia = distancia.value,
+        bateria = bateria.value,
+        precio = precio.value,
+        aceleracion = aceleracion.value,
+        maletero = maletero.value
+    )
+    // Convertir el objeto a JSON (String) usando Gson
+    val gson = Gson()
+    val myArgsJson = gson.toJson(Arguments)
 
     Row() {
         Column(){
@@ -492,12 +576,12 @@ fun fichaCar(marca: MutableState<String>, modelo: MutableState<String>,
                         .size(18.dp),
                     tint = Color.White
                 )
-                Text(text = bateria.value, modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                Text(text = "${bateria.value}%", modifier = Modifier.padding(start = 2.dp), color = Color.White)
 
             }
         }
         Column() {
-            IconButton(onClick = { navController.navigate(route = AppScreens.MapScreen.route) },
+            IconButton(onClick = { navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson)) },
                 modifier = Modifier.padding(start = 60.dp, top = 5.dp)) {
                 Icon(
                     Icons.Outlined.ArrowCircleRight,
