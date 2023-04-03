@@ -15,6 +15,8 @@ import com.jetpackcompose.smartcars.navigation.AppScreens
 import com.jetpackcompose.smartcars.ui.RV.RvScreen
 import com.jetpackcompose.smartcars.ui.home.ui.*
 import androidx.compose.material.*
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 //import com.jetpackcompose.smartcars.ui.home.ui.Scaffold
 
@@ -44,7 +46,7 @@ fun CustomTopAppBar(screen: String, navController: NavController) {
         },
         navigationIcon = {
             IconButton(onClick = { navController.navigate(route = AppScreens.HomeScreen.route) }) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Atrás")
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
             }
         },
         actions = {
@@ -68,8 +70,38 @@ fun Scaffold(navController: NavController) {
 
     ) {
         Column {
-            RvScreen()
+            RvScreen(dataViewModel = viewModel(),navController)
         }
     }
 
 }
+
+@Preview
+// Esta función es para mostrar y que funcione la barra de búsqueda
+@Preview
+@Composable
+fun SeachBar(){
+    TopAppBar(
+        backgroundColor = Color(0xFF2C2B34),
+        contentColor = Color.White,
+        elevation = 0.dp,
+        title = {
+            Text(
+                text = "Available Cars"
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = {   }) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
+            }
+        },
+        actions = {
+
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Filled.Search, contentDescription = "Buscar")
+            }
+        }
+    )
+
+}
+
