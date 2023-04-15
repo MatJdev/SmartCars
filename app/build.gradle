@@ -90,8 +90,9 @@ dependencies {
     implementation "io.insert-koin:koin-android:$koin_version"
     //SystemUiController
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
-    //
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    //Web3j
+    implementation 'org.web3j:core:5.0.0'
+    implementation 'org.web3j:contracts:5.0.0'
 
 
     testImplementation 'junit:junit:4.13.2'

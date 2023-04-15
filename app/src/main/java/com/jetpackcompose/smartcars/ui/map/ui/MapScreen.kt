@@ -40,8 +40,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import androidx.compose.runtime.Composable
 import com.google.gson.Gson
+import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.navigation.AppScreens
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
+import java.math.BigInteger
 
 
 @Composable
@@ -58,20 +60,22 @@ fun MapScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun Scaffold(navController: NavController,
-             bottomSheetState: BottomSheetScaffoldState,
-             modelo: MutableState<Int>,
-             marcaCar: MutableState<String>,
-             modeloCar: MutableState<String>,
-             precio: MutableState<String>,
-             imgCar: MutableState<String>,
-             bateriaCar: MutableState<String>,
-             motorCar: MutableState<String>,
-             cargaCar: MutableState<String>,
-             aceleracionCar: MutableState<String>,
-             maleteroCar: MutableState<String>,
-             distanciaCar: MutableState<Double>,
-             myArgs: MyArgs?) {
+fun Scaffold(
+    navController: NavController,
+    bottomSheetState: BottomSheetScaffoldState,
+    modelo: MutableState<Int>,
+    marcaCar: MutableState<String>,
+    modeloCar: MutableState<String>,
+    precio: MutableState<String>,
+    imgCar: MutableState<String>,
+    bateriaCar: MutableState<String>,
+    motorCar: MutableState<String>,
+    cargaCar: MutableState<String>,
+    aceleracionCar: MutableState<String>,
+    maleteroCar: MutableState<String>,
+    distanciaCar: MutableState<Double>,
+    myArgs: MyArgs?
+) {
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
@@ -82,9 +86,21 @@ fun Scaffold(navController: NavController,
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            MyGoogleMaps(bottomSheetState, modelo = modelo, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
-                modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
-                aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar, distanciaCar = distanciaCar, myargsP = myArgs)
+            MyGoogleMaps(
+                bottomSheetState,
+                modelo = modelo,
+                precio = precio,
+                imgCar = imgCar,
+                marcaCar = marcaCar,
+                modeloCar = modeloCar,
+                bateriaCar = bateriaCar,
+                motorCar = motorCar,
+                aceleracionCar = aceleracionCar,
+                maleteroCar = maleteroCar,
+                cargaCar = cargaCar,
+                distanciaCar = distanciaCar,
+                myargsP = myArgs
+            )
         }
     }
 
@@ -94,8 +110,10 @@ fun Scaffold(navController: NavController,
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheetScaffold(navController: NavController,
-                        myargsP: String?) {
+fun BottomSheetScaffold(
+    navController: NavController,
+    myargsP: String?
+) {
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
@@ -104,17 +122,18 @@ fun BottomSheetScaffold(navController: NavController,
     )
     //Habrá que crear variables como esta de modelo para poder cambiar los datos de detro del
     //BottomSheet desde otros componentes más concretamente desde el componente de los custom markers
-    var modelo = rememberSaveable { mutableStateOf(0)}
-    var precio =  rememberSaveable { mutableStateOf("10") }
-    var imgCar =  rememberSaveable { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
-    var marcaCar =  rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar =  rememberSaveable { mutableStateOf("85%") }
-    var motorCar =  rememberSaveable { mutableStateOf("Eléctrico") }
-    var aceleracionCar =  rememberSaveable { mutableStateOf("2,1 s") }
-    var maleteroCar =  rememberSaveable { mutableStateOf("600 Litros") }
-    var cargaCar =  rememberSaveable { mutableStateOf("Carga rápida") }
-    var distanciaCar =  rememberSaveable { mutableStateOf(0.0) }
+    var modelo = rememberSaveable { mutableStateOf(0) }
+    var precio = rememberSaveable { mutableStateOf("10") }
+    var imgCar =
+        rememberSaveable { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
+    var marcaCar = rememberSaveable { mutableStateOf("Tesla") }
+    var modeloCar = rememberSaveable { mutableStateOf("Model S") }
+    var bateriaCar = rememberSaveable { mutableStateOf("85%") }
+    var motorCar = rememberSaveable { mutableStateOf("Eléctrico") }
+    var aceleracionCar = rememberSaveable { mutableStateOf("2,1 s") }
+    var maleteroCar = rememberSaveable { mutableStateOf("600 Litros") }
+    var cargaCar = rememberSaveable { mutableStateOf("Carga rápida") }
+    var distanciaCar = rememberSaveable { mutableStateOf(0.0) }
 
     val gson = Gson()
     // Convertir el JSON a objeto usando Gson
@@ -123,28 +142,52 @@ fun BottomSheetScaffold(navController: NavController,
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            BottomSheet(distancia = distanciaCar, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
-            modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
-            aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar, bottomSheetScaffoldState = bottomSheetScaffoldState)
+            BottomSheet(
+                distancia = distanciaCar,
+                precio = precio,
+                imgCar = imgCar,
+                marcaCar = marcaCar,
+                modeloCar = modeloCar,
+                bateriaCar = bateriaCar,
+                motorCar = motorCar,
+                aceleracionCar = aceleracionCar,
+                maleteroCar = maleteroCar,
+                cargaCar = cargaCar,
+                bottomSheetScaffoldState = bottomSheetScaffoldState
+            )
         },
         sheetPeekHeight = 0.dp,
         sheetShape = RoundedCornerShape(
             topStart = 40.dp,
             topEnd = 40.dp,
             bottomStart = 0.dp,
-            bottomEnd = 0.dp)
+            bottomEnd = 0.dp
+        )
     ) {
         // Screen content
         //MyGoogleMaps()
-        Scaffold(navController, bottomSheetScaffoldState, modelo = modelo, precio = precio, imgCar = imgCar, marcaCar = marcaCar,
-            modeloCar = modeloCar, bateriaCar = bateriaCar, motorCar = motorCar,
-            aceleracionCar = aceleracionCar, maleteroCar = maleteroCar, cargaCar = cargaCar, distanciaCar = distanciaCar, myArgs = myArgs)
+        Scaffold(
+            navController,
+            bottomSheetScaffoldState,
+            modelo = modelo,
+            precio = precio,
+            imgCar = imgCar,
+            marcaCar = marcaCar,
+            modeloCar = modeloCar,
+            bateriaCar = bateriaCar,
+            motorCar = motorCar,
+            aceleracionCar = aceleracionCar,
+            maleteroCar = maleteroCar,
+            cargaCar = cargaCar,
+            distanciaCar = distanciaCar,
+            myArgs = myArgs
+        )
 
     }
 
 
 
-    Log.i("Prueba shouldexp",myArgs.shouldexp.toString())
+    Log.i("Prueba shouldexp", myArgs.shouldexp.toString())
     // Usar un efecto para expandir la hoja inferior solo si el argumento booleano es verdadero
 
     LaunchedEffect(myArgs.shouldexp) {
@@ -167,30 +210,34 @@ fun BottomSheetScaffold(navController: NavController,
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheet(distancia: MutableState<Double>,
-                dataViewModel: DataViewModel = viewModel(),
-                precio: MutableState<String>,
-                imgCar: MutableState<String>,
-                marcaCar: MutableState<String>,
-                modeloCar: MutableState<String>,
-                bateriaCar: MutableState<String>,
-                motorCar: MutableState<String>,
-                cargaCar: MutableState<String>,
-                aceleracionCar: MutableState<String>,
-                maleteroCar: MutableState<String>,
-                bottomSheetScaffoldState: BottomSheetScaffoldState) {
+fun BottomSheet(
+    distancia: MutableState<Double>,
+    dataViewModel: DataViewModel = viewModel(),
+    precio: MutableState<String>,
+    imgCar: MutableState<String>,
+    marcaCar: MutableState<String>,
+    modeloCar: MutableState<String>,
+    bateriaCar: MutableState<String>,
+    motorCar: MutableState<String>,
+    cargaCar: MutableState<String>,
+    aceleracionCar: MutableState<String>,
+    maleteroCar: MutableState<String>,
+    bottomSheetScaffoldState: BottomSheetScaffoldState
+) {
     val getData = dataViewModel.state.value
 
     Log.i("Datos en Map", getData.toString())
 // Creates a CoroutineScope bound to the MoviesScreen's lifecycle
     val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .height(400.dp)){
-        Box(){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp)
+    ) {
+        Box() {
             Bg()
-            Row(){
+            Row() {
                 /*TextButton(onClick = {
                     scope.launch {
                         bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -208,10 +255,14 @@ fun BottomSheet(distancia: MutableState<Double>,
                         tint = Color.White
                     )
                 }*/
-                IconButton(onClick = { scope.launch {
-                    bottomSheetScaffoldState.bottomSheetState.collapse()
-                } },
-                    modifier = Modifier.padding(start = 330.dp, top = 8.dp)) {
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.collapse()
+                        }
+                    },
+                    modifier = Modifier.padding(start = 330.dp, top = 8.dp)
+                ) {
                     Icon(
                         Icons.Outlined.Cancel,
                         contentDescription = "",
@@ -222,12 +273,14 @@ fun BottomSheet(distancia: MutableState<Double>,
                 }
             }
             Column() {
-                Row(modifier = Modifier.height(180.dp)){
-                    Column(Modifier.padding(top = 30.dp, start = 10.dp)){
-                        Text(text = marcaCar.value + " ${modeloCar.value}", color = Color.White,
-                            fontSize = 25.sp)
+                Row(modifier = Modifier.height(180.dp)) {
+                    Column(Modifier.padding(top = 30.dp, start = 10.dp)) {
+                        Text(
+                            text = marcaCar.value + " ${modeloCar.value}", color = Color.White,
+                            fontSize = 25.sp
+                        )
                         Spacer(modifier = Modifier.height(15.dp))
-                        Row(){
+                        Row() {
                             Icon(
                                 Icons.Outlined.NearMe,
                                 contentDescription = "",
@@ -236,7 +289,11 @@ fun BottomSheet(distancia: MutableState<Double>,
                                     .size(18.dp),
                                 tint = Color.White
                             )
-                            Text(text = "< " + "%.2f".format(distancia.value) + " km", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                            Text(
+                                text = "< " + "%.2f".format(distancia.value) + " km",
+                                modifier = Modifier.padding(start = 2.dp),
+                                color = Color.White
+                            )
                             Icon(
                                 Icons.Outlined.BatteryChargingFull,
                                 contentDescription = "",
@@ -245,12 +302,18 @@ fun BottomSheet(distancia: MutableState<Double>,
                                     .size(18.dp),
                                 tint = Color.White
                             )
-                            Text(text = "${bateriaCar.value}%", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                            Text(
+                                text = "${bateriaCar.value}%",
+                                modifier = Modifier.padding(start = 2.dp),
+                                color = Color.White
+                            )
                         }
                         Spacer(modifier = Modifier.height(45.dp))
-                        Text(text = "Características", color = Color.Black,
+                        Text(
+                            text = "Características", color = Color.Black,
                             fontSize = 18.sp, fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 10.dp))
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
                     }
                     Column(Modifier.padding(top = 25.dp, end = 10.dp)) {
                         AsyncImage(
@@ -261,7 +324,7 @@ fun BottomSheet(distancia: MutableState<Double>,
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                Row(){
+                Row() {
                     Card(
                         elevation = 5.dp,
                         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
@@ -272,7 +335,7 @@ fun BottomSheet(distancia: MutableState<Double>,
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 15.dp)){
+                        Column(Modifier.padding(start = 15.dp)) {
                             Icon(
                                 Icons.Outlined.BatteryChargingFull,
                                 contentDescription = "",
@@ -281,7 +344,11 @@ fun BottomSheet(distancia: MutableState<Double>,
                                     .size(40.dp),
                                 tint = Color(0xFF2C2B34)
                             )
-                            Text(text = motorCar.value, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = motorCar.value,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                             Text(text = cargaCar.value, fontSize = 10.sp, color = Color.Gray)
                         }
                     }
@@ -295,7 +362,7 @@ fun BottomSheet(distancia: MutableState<Double>,
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 10.dp)){
+                        Column(Modifier.padding(start = 10.dp)) {
                             Icon(
                                 Icons.Outlined.Speed,
                                 contentDescription = "",
@@ -304,8 +371,16 @@ fun BottomSheet(distancia: MutableState<Double>,
                                     .size(40.dp),
                                 tint = Color(0xFF2C2B34)
                             )
-                            Text(text = "Aceleración", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "0 - 100 km/h: ${aceleracionCar.value}", fontSize = 10.sp, color = Color.Gray)
+                            Text(
+                                text = "Aceleración",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "0 - 100 km/h: ${aceleracionCar.value}",
+                                fontSize = 10.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
                     Card(
@@ -318,7 +393,7 @@ fun BottomSheet(distancia: MutableState<Double>,
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 15.dp)){
+                        Column(Modifier.padding(start = 15.dp)) {
                             Icon(
                                 Icons.Outlined.Work,
                                 contentDescription = "",
@@ -327,7 +402,11 @@ fun BottomSheet(distancia: MutableState<Double>,
                                     .size(40.dp),
                                 tint = Color(0xFF2C2B34)
                             )
-                            Text(text = "C.Maletero", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "C.Maletero",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                             Text(text = maleteroCar.value, fontSize = 10.sp, color = Color.Gray)
                         }
                     }
@@ -335,12 +414,17 @@ fun BottomSheet(distancia: MutableState<Double>,
 
                 Spacer(modifier = Modifier.height(30.dp))
 
-                Row(){
-                    Text(text = "${precio.value} €", Modifier.padding(start = 45.dp, top = 10.dp),
-                        fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "/hora", Modifier.padding(top = 23.dp),
-                        fontSize = 15.sp)
-                    Button(onClick = { /*TODO*/ },
+                Row() {
+                    Text(
+                        text = "${precio.value} €", Modifier.padding(start = 45.dp, top = 10.dp),
+                        fontSize = 28.sp, fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "/hora", Modifier.padding(top = 23.dp),
+                        fontSize = 15.sp
+                    )
+                    Button(
+                        onClick = { onRentCarClicked()  }, // Función que llama a la función de alquiler del smart contract
                         Modifier
                             .padding(start = 90.dp, end = 30.dp)
                             .height(55.dp)
@@ -349,7 +433,8 @@ fun BottomSheet(distancia: MutableState<Double>,
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color(0xFF2C2B34),
                             contentColor = Color.White
-                        )) {
+                        )
+                    ) {
                         Text(text = "Alquilar", fontSize = 18.sp)
                     }
                 }
@@ -365,19 +450,21 @@ fun BottomSheet(distancia: MutableState<Double>,
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
-                 modelo: MutableState<Int>,
-                 precio: MutableState<String>,
-                 imgCar: MutableState<String>,
-                 marcaCar: MutableState<String>,
-                 modeloCar: MutableState<String>,
-                 bateriaCar: MutableState<String>,
-                 motorCar: MutableState<String>,
-                 cargaCar: MutableState<String>,
-                 aceleracionCar: MutableState<String>,
-                 maleteroCar: MutableState<String>,
-                 distanciaCar: MutableState<Double>,
-                 myargsP: MyArgs?) {
+fun MyGoogleMaps(
+    bottomSheetState: BottomSheetScaffoldState,
+    modelo: MutableState<Int>,
+    precio: MutableState<String>,
+    imgCar: MutableState<String>,
+    marcaCar: MutableState<String>,
+    modeloCar: MutableState<String>,
+    bateriaCar: MutableState<String>,
+    motorCar: MutableState<String>,
+    cargaCar: MutableState<String>,
+    aceleracionCar: MutableState<String>,
+    maleteroCar: MutableState<String>,
+    distanciaCar: MutableState<Double>,
+    myargsP: MyArgs?
+) {
     val locations = listOf(
         LatLng(36.528311, -6.295017),
         LatLng(36.528935, -6.295966),
@@ -403,15 +490,18 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
 
     //Indicar en position la ubicación actual del usuario
     //Para que el mapa se abra en su ubicación
-    val cameraPositionState = rememberCameraPositionState{
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(ubicacionActual, 17f)
     }
 
-    if(myargsP!!.shouldexp == true) {
+    if (myargsP!!.shouldexp == true) {
         when (myargsP!!.modelo) {
-            "Born" -> cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
-            "500e" -> cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(36.529223, -6.289575), 17f)
-            "AMI E" -> cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(36.527809, -6.293338), 17f)
+            "Born" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
+            "500e" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.529223, -6.289575), 17f)
+            "AMI E" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.527809, -6.293338), 17f)
         }
     }
 
@@ -572,7 +662,6 @@ fun MyGoogleMaps(bottomSheetState: BottomSheetScaffoldState,
     }
 
 
-
 }
 
 fun bitmapDescriptor(
@@ -633,7 +722,7 @@ fun MapMarker(
         title = title,
         snippet = snippet,
         icon = icon
-    ){ marker ->
+    ) { marker ->
         val scope = rememberCoroutineScope()
         scope.launch {
             modeloNum.setValue(value = num)
@@ -671,8 +760,11 @@ fun MapMarker(
             cargaCar.setValue(getData[num]!!.carga)
             aceleracionCar.setValue(getData[num]!!.aceleracion)
             maleteroCar.setValue(getData[num]!!.maletero)
-            val distancia1 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[num]!!.latitud, getData[num]!!.longitud))
-            distanciaCar.setValue(distancia1/1000)
+            val distancia1 = SphericalUtil.computeDistanceBetween(
+                ubicacionActual,
+                LatLng(getData[num]!!.latitud, getData[num]!!.longitud)
+            )
+            distanciaCar.setValue(distancia1 / 1000)
             if (bottomSheetState.bottomSheetState.isCollapsed)
                 bottomSheetState.bottomSheetState.expand()
             else
@@ -689,11 +781,13 @@ fun MapMarker(
 
 @Preview(showBackground = true)
 @Composable
-fun Bg(){
-    Box(){
-        Box(modifier = Modifier
-            .background(color = Color(0xFF2C2B34))
-            .fillMaxSize()){
+fun Bg() {
+    Box() {
+        Box(
+            modifier = Modifier
+                .background(color = Color(0xFF2C2B34))
+                .fillMaxSize()
+        ) {
         }
         Box(
             modifier = Modifier
@@ -755,5 +849,35 @@ private fun getRetrofit(): Retrofit {
         .baseUrl("https://api.openrouteservice.org/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+}
+
+private fun onRentCarClicked() {
+    Log.i("RentFun", "Coche alquilado!")
+    // Descomentar cuando se agregue el contraro -->
+    /*
+    // Obtener instancia del contrato
+    val carRentalContract = Web3jSingleton.getCarRentalContract()
+
+    // Obtener el saldo del usuario
+    // val userBalance = carRentalContract.getBalance().send().toLong()
+
+    // Obtener el precio del alquiler del coche
+    val rentalPrice = BigInteger("1000000000000000000") // En wei
+
+
+    // Verificar si el usuario tiene suficiente saldo
+    if (userBalance >= rentalPrice.toLong()) {
+        // Ejecutar la transacción
+        val transactionReceipt = carRentalContract.rentCar().send()
+
+        // Verificar si la transacción se ha realizado correctamente
+        if (transactionReceipt.isStatusOK) {
+            // La transacción se ha realizado correctamente, hacer algo aquí
+        } else {
+            // La transacción ha fallado, hacer algo aquí
+        }
+    } else {
+        // El usuario no tiene suficiente saldo, hacer algo aquí
+    }*/
 }
 
