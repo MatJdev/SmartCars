@@ -35,8 +35,9 @@ fun WelcomeScreen(navController: NavController) {
         }
 
 
-        Image(painter = painterResource(id = R.drawable.tesla1), contentDescription = ""
-            , modifier = Modifier
+        Image(painter = painterResource(id = R.drawable.tesla1),
+            contentDescription = "",
+            modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(foto) {
                     end.linkTo(guiaVerticalTop)
@@ -44,13 +45,15 @@ fun WelcomeScreen(navController: NavController) {
                 }
         )
 
-        Text( text = "Premiums Cars.\nEnjoy the luxury",
-            modifier = Modifier.constrainAs(text){
+        Text(
+            text = "Premiums Cars.\nEnjoy the luxury",
+            modifier = Modifier.constrainAs(text) {
                 top.linkTo(foto.bottom, margin = 20.dp)
                 start.linkTo(parent.start, margin = 30.dp)
             },
             color = Color.White,
-            fontSize = 35.sp)
+            fontSize = 35.sp
+        )
 
         Button(onClick = {
             navController.navigate(route = AppScreens.LoginScreen.route)
@@ -58,12 +61,13 @@ fun WelcomeScreen(navController: NavController) {
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color.White,
                 contentColor = Color(0xFF2C2B34)
-            ), modifier = Modifier.width(200.dp)
-                .constrainAs(btn){
+            ), modifier = Modifier
+                .width(200.dp)
+                .constrainAs(btn) {
                     top.linkTo(text.bottom, margin = 100.dp)
                     start.linkTo(parent.start, margin = 100.dp)
-                }){
-            Text(text="Let's Go", fontSize = 20.sp)
+                }) {
+            Text(text = "Let's Go", fontSize = 20.sp)
         }
 
     }

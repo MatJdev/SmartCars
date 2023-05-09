@@ -66,11 +66,11 @@ fun Scaffold(navController: NavController) {
 
     Scaffold(
         scaffoldState = scaffoldState,
-        topBar = {CustomTopAppBar(screen = "search_screen", navController )}
+        topBar = { CustomTopAppBar(screen = "search_screen", navController) }
 
     ) {
         Column {
-            RvScreen(dataViewModel = viewModel(),navController)
+            RvScreen(dataViewModel = viewModel(), navController)
         }
     }
 
@@ -80,7 +80,7 @@ fun Scaffold(navController: NavController) {
 // Esta función es para mostrar y que funcione la barra de búsqueda
 @Preview
 @Composable
-fun SeachBar(){
+fun SeachBar() {
     TopAppBar(
         backgroundColor = Color(0xFF2C2B34),
         contentColor = Color.White,
@@ -91,7 +91,7 @@ fun SeachBar(){
             )
         },
         navigationIcon = {
-            IconButton(onClick = {   }) {
+            IconButton(onClick = { }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
             }
         },

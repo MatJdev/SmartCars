@@ -46,7 +46,7 @@ fun Scaffold(navController: NavController) {
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true
     ) {
-            UserCard()
+        UserCard()
         Column(modifier = Modifier.padding(top = 400.dp, start = 30.dp)) {
             CustomCard(stringCard = "Credit : ")
             CustomCard(stringCard = "Id MetaMask : ")
@@ -55,7 +55,7 @@ fun Scaffold(navController: NavController) {
 }
 
 @Composable
-fun CustomCard(stringCard: String){
+fun CustomCard(stringCard: String) {
 
     Spacer(
         modifier = Modifier
@@ -125,18 +125,21 @@ fun UserCard() {
             )
 
         }
-        Canvas(modifier = Modifier
-            .height(10.dp)
-            .width(300.dp)
-            .wrapContentSize()
-            .padding(top = 40.dp, start = 80.dp)) {
+        Canvas(
+            modifier = Modifier
+                .height(10.dp)
+                .width(300.dp)
+                .wrapContentSize()
+                .padding(top = 40.dp, start = 80.dp)
+        ) {
             drawLine(
                 color = Color.Black,
                 start = Offset(x = -400f, y = 20f),
                 end = Offset(x = 400f, y = 20f),
                 strokeWidth = 2.dp.toPx(),
                 cap = StrokeCap.Round
-            )}
+            )
+        }
 
     }
 }

@@ -41,9 +41,12 @@ import java.util.*
 import androidx.compose.runtime.Composable
 import com.google.gson.Gson
 import com.jetpackcompose.smartcars.model.Web3jSingleton
+import com.jetpackcompose.smartcars.model.Web3jSingleton.getCarRentalContract
 import com.jetpackcompose.smartcars.navigation.AppScreens
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
+import org.web3j.protocol.core.RemoteFunctionCall
 import java.math.BigInteger
+import java.util.concurrent.Future
 
 
 @Composable
@@ -424,7 +427,7 @@ fun BottomSheet(
                         fontSize = 15.sp
                     )
                     Button(
-                        onClick = { onRentCarClicked()  }, // Función que llama a la función de alquiler del smart contract
+                        onClick = { onRentCarClicked() }, // Función que llama a la función de alquiler del smart contract
                         Modifier
                             .padding(start = 90.dp, end = 30.dp)
                             .height(55.dp)
@@ -853,6 +856,17 @@ private fun getRetrofit(): Retrofit {
 
 private fun onRentCarClicked() {
     Log.i("RentFun", "Coche alquilado!")
+
+    Thread(Runnable {
+        val contract = getCarRentalContract()
+        Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
+
+        /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
+        Log.d("TAG", "greeting value returned: $numrentals")*/
+    }).start()
+
+
+
     // Descomentar cuando se agregue el contraro -->
     /*
     // Obtener instancia del contrato
