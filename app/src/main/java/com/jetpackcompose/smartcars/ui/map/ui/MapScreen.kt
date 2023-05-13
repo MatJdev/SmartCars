@@ -57,6 +57,10 @@ fun MapScreen(
     //Scaffold(navController)
     Log.i("Prueba1 Json", myargsP!!)
     BottomSheetScaffold(navController = navController, myargsP = myargsP)
+    /*Thread(Runnable {
+        val contract = Web3jSingleton.getCarRentalContract()
+        Log.i("Last rentcar", "${contract.numRentals().send()}")
+    }).start()*/
 }
 
 //@Preview(showBackground = true, showSystemUi = true)
@@ -860,6 +864,30 @@ private fun onRentCarClicked() {
     Thread(Runnable {
         val contract = getCarRentalContract()
         Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
+
+        val carId = BigInteger.valueOf(1)  // ID del coche
+        val userId = BigInteger.valueOf(1) // ID del usuario
+
+        try {
+            val transactionReceipt = contract.rentCar(carId, userId).send()
+
+            // Aquí puedes manejar la respuesta de la transacción
+            if (transactionReceipt.isStatusOK) {
+                // La transacción se completó correctamente
+                // Realiza cualquier acción adicional o muestra un mensaje de éxito
+                val transactionHash = transactionReceipt.transactionHash
+                Log.i("Transaccion OK", "Hash del alquiler: $transactionHash")
+            } else {
+                // La transacción falló
+                // Muestra un mensaje de error o maneja el fallo de acuerdo a tus necesidades
+                Log.i("Transaccion KO", "No se realizó la transacción")
+            }
+        } catch (e: Exception) {
+            // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+            Log.i("No alquilado", "No se realizó la transacción: $e")
+        }
+
+
 
         /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
         Log.d("TAG", "greeting value returned: $numrentals")*/
