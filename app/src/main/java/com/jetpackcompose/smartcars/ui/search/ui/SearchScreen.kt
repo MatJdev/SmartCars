@@ -1,42 +1,63 @@
 package com.jetpackcompose.smartcars.ui.search.ui
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.jetpackcompose.smartcars.navigation.AppScreens
-import com.jetpackcompose.smartcars.ui.RV.RvScreen
-import com.jetpackcompose.smartcars.ui.home.ui.*
-import androidx.compose.material.*
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 //import com.jetpackcompose.smartcars.ui.home.ui.Scaffold
 
-@Composable
-fun SearcScreen(navController: NavController) {
-    Scaffold(navController)
-}
+//@Composable
+//fun SearcScreen(navController: NavController) {
+//    Scaffold(navController)
+//}
 
 //Este componente es para la top bar de la screen del recycler view
+//@Composable
+//fun CustomTopAppBar(screen: String, navController: NavController) {
+//    //var ind by remember { mutableStateOf(0)}
+//
+//    TopAppBar(
+//        backgroundColor = Color(0xFF2C2B34),
+//        contentColor = Color.White,
+//        elevation = 0.dp,
+//        title = {
+//            Text(
+//                text = "Available Cars"
+//            )
+//        },
+//        navigationIcon = {
+//            IconButton(onClick = { navController.navigate(route = AppScreens.HomeScreen.route) }) {
+//                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
+//            }
+//        },
+//        actions = {
+//            IconButton(onClick = { /*TODO*/ }) {
+//                Icon(imageVector = Icons.Filled.Search, contentDescription = "Buscar")
+//            }
+//        }
+//    )
+//}
 @Composable
-fun CustomTopAppBar(screen: String, navController: NavController) {
+fun CustomTopAppBar() {
     //var ind by remember { mutableStateOf(0)}
-    val items = listOf(
-        AppScreens.HomeScreen,
-        AppScreens.SearchScreen,
-        AppScreens.MapScreen,
-        AppScreens.AccountScreen
-    )
-    TopAppBar(
-        backgroundColor = Color(0xFF2C2B34),
+
+    TopAppBar(backgroundColor = Color(0xFF2C2B34),
         contentColor = Color.White,
         elevation = 0.dp,
         title = {
@@ -45,63 +66,78 @@ fun CustomTopAppBar(screen: String, navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigate(route = AppScreens.HomeScreen.route) }) {
+            IconButton(onClick = {/* TODO = Aqui va navegacion atras y finish activity*/ }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
             }
         },
         actions = {
-
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Buscar")
             }
-        }
-    )
+        })
 }
 
 //@Preview(showBackground = true, showSystemUi = true)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Composable
-fun Scaffold(navController: NavController) {
-    val scaffoldState = rememberScaffoldState()
+//@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+//@Composable
+//fun Scaffold(navController: NavController) {
+//    val scaffoldState = rememberScaffoldState()
+//
+//    Scaffold(
+//        scaffoldState = scaffoldState,
+//        topBar = { CustomTopAppBar(screen = "search_screen", navController) }
+//
+//    ) {
+//        Column {
+//            RvScreen(dataViewModel = viewModel(), navController)
+//        }
+//    }
+//
+//}
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        topBar = {CustomTopAppBar(screen = "search_screen", navController )}
 
-    ) {
-        Column {
-            RvScreen(dataViewModel = viewModel(),navController)
-        }
-    }
-
-}
-
-@Preview
 // Esta función es para mostrar y que funcione la barra de búsqueda
-@Preview
+
 @Composable
-fun SeachBar(){
-    TopAppBar(
-        backgroundColor = Color(0xFF2C2B34),
-        contentColor = Color.White,
-        elevation = 0.dp,
-        title = {
+fun SearchAppBar(
+    text: String,
+    onTextChange: (String) -> Unit,
+    onCloseClicked: () -> Unit,
+    onSearchClicked: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+    ) {
+        TextField(modifier = Modifier.fillMaxWidth(), value = text, onValueChange = {
+            onTextChange(it)
+        }, placeholder = {
             Text(
-                text = "Available Cars"
+                modifier = Modifier.alpha(ContentAlpha.medium),
+                text = "Search here...",
+                color = Color.White
             )
-        },
-        navigationIcon = {
-            IconButton(onClick = {   }) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
-            }
-        },
-        actions = {
+        }, textStyle = androidx.compose.ui.text.TextStyle(
+            fontSize = MaterialTheme.typography.subtitle1.fontSize
+        ), singleLine = true, leadingIcon =
+        {
+            IconButton(
+                modifier = Modifier.alpha(ContentAlpha.medium),
+                onClick = { /*TODO*/ }) {
+//                Icon(
+//                    ImageBitmap = Icons.Default.Search ,contentDescription = "Search Icon",
+//                    tint = Color.White
+//                )
 
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = "Buscar")
             }
-        }
-    )
 
+        })
+    }
 }
 
+@Preview
+@Composable
+fun AppBarPreview() {
+    CustomTopAppBar()
+}

@@ -86,9 +86,10 @@ fun info() {
             contentDescription = "",
             Modifier.padding(top = 10.dp)
         )
-        TextButton(onClick = {
+        TextButton(
+            onClick = {
 
-        },
+            },
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color(0xFF2C2B34)
             )
@@ -101,9 +102,10 @@ fun info() {
             contentDescription = "",
             Modifier.padding(top = 10.dp)
         )
-        TextButton(onClick = {
+        TextButton(
+            onClick = {
 
-        },
+            },
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color(0xFF2C2B34)
             )
@@ -136,7 +138,7 @@ fun obtenerUbicacion(context: Context) {
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavController){
+fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavController) {
 
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
 
@@ -144,7 +146,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 
     Log.i("Ubicacion actual", lat.toString() + long.toString())
 
-    var ubica = LatLng(lat, long)
+    val ubica = LatLng(lat, long)
 
     /*val distancia1 = SphericalUtil.computeDistanceBetween(ubica, LatLng(36.527809, -6.293338))
     Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
@@ -170,16 +172,17 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
     // Obtener el objeto Car más cercano a myLocation
     val closestCar = sortedCarList.firstOrNull()
 
-    var precioCar =  rememberSaveable { mutableStateOf("10") }
-    var imgCar =  rememberSaveable { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
-    var marcaCar =  rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar =  rememberSaveable { mutableStateOf("85") }
-    var motorCar =  rememberSaveable { mutableStateOf("Eléctrico") }
-    var aceleracionCar =  rememberSaveable { mutableStateOf("2,1 s") }
-    var maleteroCar =  rememberSaveable { mutableStateOf("600 Litros") }
-    var cargaCar =  rememberSaveable { mutableStateOf("Carga rápida") }
-    var distCar =  rememberSaveable { mutableStateOf(2.0) }
+    val precioCar = rememberSaveable { mutableStateOf("10") }
+    val imgCar =
+        rememberSaveable { mutableStateOf("https://www.pngplay.com/wp-content/uploads/13/2018-Tesla-Model-S-Transparent-PNG.png") }
+    val marcaCar = rememberSaveable { mutableStateOf("Tesla") }
+    val modeloCar = rememberSaveable { mutableStateOf("Model S") }
+    val bateriaCar = rememberSaveable { mutableStateOf("85") }
+    val motorCar = rememberSaveable { mutableStateOf("Eléctrico") }
+    val aceleracionCar = rememberSaveable { mutableStateOf("2,1 s") }
+    val maleteroCar = rememberSaveable { mutableStateOf("600 Litros") }
+    val cargaCar = rememberSaveable { mutableStateOf("Carga rápida") }
+    val distCar = rememberSaveable { mutableStateOf(2.0) }
 
 
     val scope = rememberCoroutineScope()
@@ -187,15 +190,18 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
     // Verificar si se encontró un objeto Car cercano
     if (closestCar != null) {
 
-        val distancia1 = SphericalUtil.computeDistanceBetween(ubica, LatLng(closestCar.latitud, closestCar.longitud))
+        val distancia1 = SphericalUtil.computeDistanceBetween(
+            ubica,
+            LatLng(closestCar.latitud, closestCar.longitud)
+        )
         Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
 
-        val distkm = distancia1/1000
+        val distkm = distancia1 / 1000
 
         // Hacer algo con el objeto Car más cercano, por ejemplo, mostrar sus detalles en pantalla
         scope.launch {
 
-            while (getData == null || getData.isEmpty()) {
+            while (getData.isEmpty()) {
                 delay(200L) // esperar un segundo
             }
             // ejecutar código aquí
@@ -216,7 +222,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
         // No se encontró ningún objeto Car cercano
     }
 
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = marcaCar.value,
         modelo = modeloCar.value,
         shouldexp = true,
@@ -232,7 +238,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
     val gson = Gson()
     val myArgsJson = gson.toJson(Arguments)
 
-    Log.i("Json prueba",myArgsJson)
+    Log.i("Json prueba", myArgsJson)
     Card(
         elevation = 10.dp,
         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
@@ -244,7 +250,11 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
         shape = RoundedCornerShape(20.dp),
         onClick = { navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson)) }
     ) {
-        Text(text = "Nearest Car", modifier = Modifier.padding(20.dp), fontWeight = FontWeight.Light)
+        Text(
+            text = "Nearest Car",
+            modifier = Modifier.padding(20.dp),
+            fontWeight = FontWeight.Light
+        )
         AsyncImage(
             model = imgCar.value,
             contentDescription = null,
@@ -252,9 +262,14 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
         )
         //https://assets.stickpng.com/images/580b585b2edbce24c47b2ccc.png
         //https://www.pngmart.com/files/21/Tesla-Car-Transparent-Background.png
-        Text(text = marcaCar.value + " ${modeloCar.value}", modifier = Modifier.padding(top = 165.dp, start = 20.dp),
-            fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2C2B34))
-        Row(Modifier.padding(top = 195.dp)){
+        Text(
+            text = marcaCar.value + " ${modeloCar.value}",
+            modifier = Modifier.padding(top = 165.dp, start = 20.dp),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2C2B34)
+        )
+        Row(Modifier.padding(top = 195.dp)) {
             Icon(
                 Icons.Outlined.NearMe,
                 contentDescription = "",
@@ -262,7 +277,10 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
                     .padding(start = 20.dp)
                     .size(18.dp)
             )
-            Text(text = "< " + "%.2f".format(distCar.value) + " km", modifier = Modifier.padding(start = 2.dp))
+            Text(
+                text = "< " + "%.2f".format(distCar.value) + " km",
+                modifier = Modifier.padding(start = 2.dp)
+            )
             Icon(
                 Icons.Outlined.BatteryChargingFull,
                 contentDescription = "",
@@ -278,7 +296,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 }
 
 @Composable
-fun profileMap(){
+fun profileMap() {
     Row(Modifier.padding(top = 20.dp, bottom = 20.dp)) {
         Card(
             elevation = 10.dp,
@@ -290,7 +308,7 @@ fun profileMap(){
             backgroundColor = Color(0xFFE6E6E6),
             shape = RoundedCornerShape(20.dp)
         ) {
-            Box(Modifier.padding(top = 20.dp, start = 35.dp)){
+            Box(Modifier.padding(top = 20.dp, start = 35.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data("https://www.pngitem.com/pimgs/m/551-5510463_default-user-image-png-transparent-png.png")
@@ -302,8 +320,16 @@ fun profileMap(){
                         .size(80.dp)
                 )
             }
-            Text(text = "Name", textAlign = TextAlign.Center, modifier = Modifier.padding(top = 100.dp))
-            Text(text = "150 €", textAlign = TextAlign.Center, modifier = Modifier.padding(top = 120.dp))
+            Text(
+                text = "Name",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 100.dp)
+            )
+            Text(
+                text = "150 €",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 120.dp)
+            )
         }
 
         Card(
@@ -324,34 +350,38 @@ fun profileMap(){
 @SuppressLint("CoroutineCreationDuringComposition")
 //@Preview(showBackground = true)
 @Composable
-fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng, navController: NavController){
+fun moreCars(
+    dataViewModel: DataViewModel = viewModel(),
+    ubicacionActual: LatLng,
+    navController: NavController
+) {
 
     val getData = dataViewModel.state.value
 
-    var marcaCar =  rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar =  rememberSaveable { mutableStateOf("85") }
-    var imgCar =  rememberSaveable { mutableStateOf("Model S") }
-    var motorCar =  rememberSaveable { mutableStateOf("85") }
-    var precioCar =  rememberSaveable { mutableStateOf("Model S") }
-    var aceleracionCar =  rememberSaveable { mutableStateOf("85") }
-    var maleteroCar =  rememberSaveable { mutableStateOf("85") }
-    var distCar =  rememberSaveable { mutableStateOf(2.0) }
+    val marcaCar = rememberSaveable { mutableStateOf("Tesla") }
+    val modeloCar = rememberSaveable { mutableStateOf("Model S") }
+    val bateriaCar = rememberSaveable { mutableStateOf("85") }
+    val imgCar = rememberSaveable { mutableStateOf("Model S") }
+    val motorCar = rememberSaveable { mutableStateOf("85") }
+    val precioCar = rememberSaveable { mutableStateOf("Model S") }
+    val aceleracionCar = rememberSaveable { mutableStateOf("85") }
+    val maleteroCar = rememberSaveable { mutableStateOf("85") }
+    val distCar = rememberSaveable { mutableStateOf(2.0) }
 
-    var marcaCar1 =  rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar1 =  rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar1 =  rememberSaveable { mutableStateOf("85") }
-    var imgCar1 =  rememberSaveable { mutableStateOf("Model S") }
-    var motorCar1 =  rememberSaveable { mutableStateOf("85") }
-    var precioCar1 =  rememberSaveable { mutableStateOf("Model S") }
-    var aceleracionCar1 =  rememberSaveable { mutableStateOf("85") }
-    var maleteroCar1 =  rememberSaveable { mutableStateOf("85") }
-    var distCar1 =  rememberSaveable { mutableStateOf(2.0) }
+    val marcaCar1 = rememberSaveable { mutableStateOf("Tesla") }
+    val modeloCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val bateriaCar1 = rememberSaveable { mutableStateOf("85") }
+    val imgCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val motorCar1 = rememberSaveable { mutableStateOf("85") }
+    val precioCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val aceleracionCar1 = rememberSaveable { mutableStateOf("85") }
+    val maleteroCar1 = rememberSaveable { mutableStateOf("85") }
+    val distCar1 = rememberSaveable { mutableStateOf(2.0) }
 
     val scope = rememberCoroutineScope()
     scope.launch {
 
-        while (getData == null || getData.isEmpty()) {
+        while (getData.isEmpty()) {
             delay(200L) // esperar un segundo
         }
         // ejecutar código aquí
@@ -363,8 +393,11 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
         precioCar.setValue(getData[0]!!.precio)
         aceleracionCar.setValue(getData[0]!!.aceleracion)
         maleteroCar.setValue(getData[0]!!.maletero)
-        val distancia1 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[0]!!.latitud, getData[0]!!.longitud))
-        distCar.setValue(distancia1/1000)
+        val distancia1 = SphericalUtil.computeDistanceBetween(
+            ubicacionActual,
+            LatLng(getData[0]!!.latitud, getData[0]!!.longitud)
+        )
+        distCar.setValue(distancia1 / 1000)
 
         modeloCar1.setValue(getData[1]!!.modelo)
         marcaCar1.setValue(getData[1]!!.marca)
@@ -374,8 +407,11 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
         precioCar1.setValue(getData[1]!!.precio)
         aceleracionCar1.setValue(getData[1]!!.aceleracion)
         maleteroCar1.setValue(getData[1]!!.maletero)
-        val distancia2 = SphericalUtil.computeDistanceBetween(ubicacionActual, LatLng(getData[1]!!.latitud, getData[1]!!.longitud))
-        distCar1.setValue(distancia2/1000)
+        val distancia2 = SphericalUtil.computeDistanceBetween(
+            ubicacionActual,
+            LatLng(getData[1]!!.latitud, getData[1]!!.longitud)
+        )
+        distCar1.setValue(distancia2 / 1000)
     }
     Card(
         elevation = 10.dp,
@@ -388,11 +424,29 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(Modifier.padding(start = 20.dp)) {
-            Text(text = "More Cars", modifier = Modifier.padding(top = 20.dp, bottom = 10.dp), color = Color.LightGray)
-            fichaCar(marcaCar, modeloCar, imgCar, motorCar, distCar, bateriaCar, precioCar, aceleracionCar, maleteroCar, navController)
-            Canvas(modifier = Modifier
-                .height(10.dp).width(300.dp)
-                .wrapContentSize()) {
+            Text(
+                text = "More Cars",
+                modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
+                color = Color.LightGray
+            )
+            fichaCar(
+                marcaCar,
+                modeloCar,
+                imgCar,
+                motorCar,
+                distCar,
+                bateriaCar,
+                precioCar,
+                aceleracionCar,
+                maleteroCar,
+                navController
+            )
+            Canvas(
+                modifier = Modifier
+                    .height(10.dp)
+                    .width(300.dp)
+                    .wrapContentSize()
+            ) {
                 drawLine(
                     color = Color.LightGray,
                     start = Offset(x = -400f, y = 20f),
@@ -402,7 +456,18 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            fichaCar(marcaCar1, modeloCar1, imgCar1, motorCar1, distCar1, bateriaCar1, precioCar1, aceleracionCar1, maleteroCar1, navController)
+            fichaCar(
+                marcaCar1,
+                modeloCar1,
+                imgCar1,
+                motorCar1,
+                distCar1,
+                bateriaCar1,
+                precioCar1,
+                aceleracionCar1,
+                maleteroCar1,
+                navController
+            )
         }
     }
 }
@@ -413,7 +478,7 @@ fun moreCars(dataViewModel: DataViewModel = viewModel(), ubicacionActual: LatLng
 @Composable
 fun BottomNavigationBar(screen: String, navController: NavController) {
     //var ind by remember { mutableStateOf(0)}
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = "",
         modelo = "",
         shouldexp = false,
@@ -451,7 +516,7 @@ fun BottomNavigationBar(screen: String, navController: NavController) {
                 selected = item.route == screen,
                 onClick = {
                     Log.i("Item Route", item.route)
-                    if(item.route == "map_screen?myargs={myargs}") {
+                    if (item.route == "map_screen?myargs={myargs}") {
                         navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson))
                     } else {
                         navController.navigate(route = item.route)
@@ -474,7 +539,7 @@ fun Scaffold(navController: NavController) {
 
     Log.i("Ubicacion actual", lat.toString() + long.toString())
 
-    var ubicacionActual = LatLng(lat, long)
+    val ubicacionActual = LatLng(lat, long)
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -496,7 +561,11 @@ fun Scaffold(navController: NavController) {
 //Este componente se usa en las demás screen se llama directamente desde aquí
 @Composable
 fun MyFab() {
-    FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = Color(0xFFE6E6E6), contentColor = Color(0xFF2C2B34)) {
+    FloatingActionButton(
+        onClick = { /*TODO*/ },
+        backgroundColor = Color(0xFFE6E6E6),
+        contentColor = Color(0xFF2C2B34)
+    ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "add")
     }
 }
@@ -508,11 +577,11 @@ fun miniMap() {
 
     obtenerUbicacion(LocalContext.current)
 
-    var ubicacionActu = LatLng(lat, long)
+    val ubicacionActu = LatLng(lat, long)
 
     //Indicar en position la ubicación actual del usuario
     //Para que el mapa se abra en su ubicación
-    val cameraPositionState = rememberCameraPositionState{
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(ubicacionActu, 17f)
     }
 
@@ -527,18 +596,20 @@ fun miniMap() {
 }
 
 @Composable
-fun fichaCar(marca: MutableState<String>,
-             modelo: MutableState<String>,
-             img: MutableState<String>,
-             motor: MutableState<String>,
-             distancia: MutableState<Double>,
-             bateria: MutableState<String>,
-             precio: MutableState<String>,
-             aceleracion: MutableState<String>,
-             maletero: MutableState<String>,
-             navController: NavController) {
+fun fichaCar(
+    marca: MutableState<String>,
+    modelo: MutableState<String>,
+    img: MutableState<String>,
+    motor: MutableState<String>,
+    distancia: MutableState<Double>,
+    bateria: MutableState<String>,
+    precio: MutableState<String>,
+    aceleracion: MutableState<String>,
+    maletero: MutableState<String>,
+    navController: NavController
+) {
 
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = marca.value,
         modelo = modelo.value,
         shouldexp = true,
@@ -554,11 +625,13 @@ fun fichaCar(marca: MutableState<String>,
     val gson = Gson()
     val myArgsJson = gson.toJson(Arguments)
 
-    Row() {
-        Column(){
+    Row {
+        Column {
             Text(text = "${marca.value} ${modelo.value}", fontSize = 20.sp, color = Color.White)
-            Row(Modifier
-                .padding(top = 5.dp)){
+            Row(
+                Modifier
+                    .padding(top = 5.dp)
+            ) {
                 Icon(
                     Icons.Outlined.NearMe,
                     contentDescription = "",
@@ -567,7 +640,11 @@ fun fichaCar(marca: MutableState<String>,
                         .size(18.dp),
                     tint = Color.White
                 )
-                Text(text = "< " + "%.2f".format(distancia.value) + " km", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                Text(
+                    text = "< " + "%.2f".format(distancia.value) + " km",
+                    modifier = Modifier.padding(start = 2.dp),
+                    color = Color.White
+                )
                 Icon(
                     Icons.Outlined.BatteryChargingFull,
                     contentDescription = "",
@@ -576,13 +653,25 @@ fun fichaCar(marca: MutableState<String>,
                         .size(18.dp),
                     tint = Color.White
                 )
-                Text(text = "${bateria.value}%", modifier = Modifier.padding(start = 2.dp), color = Color.White)
+                Text(
+                    text = "${bateria.value}%",
+                    modifier = Modifier.padding(start = 2.dp),
+                    color = Color.White
+                )
 
             }
         }
-        Column() {
-            IconButton(onClick = { navController.navigate(route = AppScreens.MapScreen.createRoute(myArgsJson)) },
-                modifier = Modifier.padding(start = 60.dp, top = 5.dp)) {
+        Column {
+            IconButton(
+                onClick = {
+                    navController.navigate(
+                        route = AppScreens.MapScreen.createRoute(
+                            myArgsJson
+                        )
+                    )
+                },
+                modifier = Modifier.padding(start = 60.dp, top = 5.dp)
+            ) {
                 Icon(
                     Icons.Outlined.ArrowCircleRight,
                     contentDescription = "",

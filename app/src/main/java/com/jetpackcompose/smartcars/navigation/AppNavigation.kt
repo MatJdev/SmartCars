@@ -14,7 +14,7 @@ import com.jetpackcompose.smartcars.ui.signup.ui.SignUpScreen
 import com.jetpackcompose.smartcars.ui.welcome.ui.WelcomeScreen
 import com.jetpackcompose.smartcars.ui.home.ui.HomeScreen
 import com.jetpackcompose.smartcars.ui.map.ui.MapScreen
-import com.jetpackcompose.smartcars.ui.search.ui.SearcScreen
+//import com.jetpackcompose.smartcars.ui.search.ui.SearchScreen
 
 @Composable
 fun AppNavigation() {
@@ -44,9 +44,9 @@ fun AppNavigation() {
         composable(route = AppScreens.AccountScreen.route){
             AccountScreen(navController)
         }
-        composable(route = AppScreens.SearchScreen.route){
-            SearcScreen(navController)
-        }
+//        composable(route = AppScreens.SearchScreen.route){
+//            AppScreens.SearchScreen(navController)
+//        }
         //Todo crear las demas rutas cuando estén las screens terminadas
     }
 
