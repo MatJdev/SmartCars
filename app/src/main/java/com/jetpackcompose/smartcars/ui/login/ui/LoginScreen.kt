@@ -11,13 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,40 +33,56 @@ import com.jetpackcompose.smartcars.navigation.AppScreens
 @Composable
 fun LoginScreen(navController: NavController) {
     Box {
-        //Modifier.paint(painterResource(id = R.drawable.loginbg)) -> Imagen de Fondo
-        //Image(painter = painterResource(id = R.drawable.loginbg), contentDescription = "",
-        //modifier = Modifier.fillMaxWidth())
         BackGround()
         Logo()
         Text()
-        Row1()
-        EmailPass()
-        Btn(navController)
+        Column(Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 56.dp)) {
+            Row1()
+            EmailPass()
+            Btn(navController)
+        }
     }
 
 }
 
 @Composable
 fun Row1() {
-    Text(text = "Log in", modifier = Modifier.padding(top = 330.dp, start = 70.dp),
-        fontWeight = FontWeight.ExtraBold,
-        style = TextStyle(textDecoration = TextDecoration.Underline,
-        fontSize = 20.sp)
-    )
-    Text(text = "Sign up", modifier = Modifier.padding(top = 330.dp, start = 260.dp),
-        fontWeight = FontWeight.Bold, fontSize = 20.sp)
+    Row(
+        Modifier
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(
+            text = "Log in", modifier = Modifier
+                .padding(top = 330.dp)
+                .weight(1f),
+            fontWeight = FontWeight.ExtraBold,
+            style = TextStyle(
+                textDecoration = TextDecoration.Underline,
+                fontSize = 20.sp
+            ),
+            textAlign = TextAlign.Start
+        )
+        Text(
+            text = "Sign up", modifier = Modifier
+                .padding(top = 330.dp)
+                .weight(1f),
+            fontWeight = FontWeight.Bold, fontSize = 20.sp, textAlign = TextAlign.End
+        )
+    }
 }
 
 @Preview
 @Composable
 fun EmailPass() {
-    var textEmail by remember {mutableStateOf("")}
-    var textPass by remember {mutableStateOf("")}
+    var textEmail by remember { mutableStateOf("") }
+    var textPass by remember { mutableStateOf("") }
 
-    Text(text = "Email", modifier = Modifier.padding(top = 390.dp, start = 70.dp))
-    TextField(value = textEmail, onValueChange = { textEmail = it },
+    Text(text = "Email", modifier = Modifier.padding(top = 40.dp, start = 0.dp))
+    TextField(
+        value = textEmail, onValueChange = { textEmail = it },
         modifier = Modifier
-            .padding(top = 420.dp, start = 60.dp)
+            .padding(top = 10.dp, start = 0.dp)
             .border(
                 border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
@@ -82,10 +99,11 @@ fun EmailPass() {
         )
     )
 
-    Text(text = "Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
-    TextField(value = textPass, onValueChange = { textPass = it},
+    Text(text = "Password", modifier = Modifier.padding(top = 20.dp, start = 0.dp))
+    TextField(
+        value = textPass, onValueChange = { textPass = it },
         modifier = Modifier
-            .padding(top = 520.dp, start = 60.dp)
+            .padding(top = 10.dp, start = 0.dp)
             .border(
                 border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
@@ -105,52 +123,67 @@ fun EmailPass() {
 
 @Composable
 fun Btn(navController: NavController) {
-    Column(Modifier.padding(top = 620.dp, start = 130.dp)) {
-        Button(onClick = {
-            navController.navigate(route = AppScreens.HomeScreen.route)
-        },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFF2C2B34),
-                contentColor = Color.White
-            ), modifier = Modifier.width(140.dp)){
-            Text(text="Login")
-        }
-
-        TextButton(onClick = {
-            navController.navigate(route = AppScreens.SignupScreen.route)
-        },
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = Color(0xFF2C2B34)
-            ), modifier = Modifier.padding(start = 10.dp)
+    Column(Modifier.padding(top = 30.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Or sign up here")
+            Button(
+                onClick = {
+                    navController.navigate(route = AppScreens.HomeScreen.route)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF2C2B34),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.width(140.dp)
+            ) {
+                Text(text = "Login")
+            }
         }
 
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TextButton(
+                onClick = {
+                    navController.navigate(route = AppScreens.SignupScreen.route)
+                },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF2C2B34)
+                )
+            ) {
+                Text(text = "Or sign up here")
+            }
+        }
     }
-
 }
 
 @Composable
 fun Text() {
-    Text( text = "Hey!\nWelcome Back",
+    Text(
+        text = "Hey!\nWelcome Back",
         modifier = Modifier.padding(top = 190.dp, start = 40.dp),
-    color = Color.White,
-    fontSize = 35.sp)
+        color = Color.White,
+        fontSize = 35.sp
+    )
 }
 
 @Composable
 fun Logo() {
-    Image(painter = painterResource(id = R.drawable.cocheelectrico), contentDescription = "",
+    Image(
+        painter = painterResource(id = R.drawable.cocheelectrico), contentDescription = "",
         modifier = Modifier
             .width(270.dp)
-            .padding(start = 140.dp, top = 60.dp))
+            .padding(start = 140.dp, top = 60.dp)
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BackGround() {
-    ConstraintLayout(modifier = Modifier.fillMaxSize()){
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
         val (BoxLight, BoxDark) = createRefs()
         val guiaHorizontalTop = createGuidelineFromTop(0.4f)
@@ -158,12 +191,13 @@ fun BackGround() {
         Box(modifier = Modifier
             .background(color = Color(0xFF2C2B34))
             .constrainAs(BoxDark) {}
-            .fillMaxSize()){
+            .fillMaxSize()) {
 
         }
         Box(
             modifier = Modifier
-                .size(width = 400.dp, height = 800.dp)
+                .height(800.dp)
+                .fillMaxWidth()
                 .clip(
                     shape = RoundedCornerShape(
                         topStart = 40.dp,

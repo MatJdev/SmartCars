@@ -39,6 +39,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
 import com.google.gson.Gson
 import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.model.Web3jSingleton.getCarRentalContract
@@ -46,6 +48,7 @@ import com.jetpackcompose.smartcars.navigation.AppScreens
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import org.web3j.protocol.core.RemoteFunctionCall
 import java.math.BigInteger
+import java.text.SimpleDateFormat
 import java.util.concurrent.Future
 
 
@@ -236,6 +239,10 @@ fun BottomSheet(
     Log.i("Datos en Map", getData.toString())
 // Creates a CoroutineScope bound to the MoviesScreen's lifecycle
     val scope = rememberCoroutineScope()
+
+    if (showDialog) {
+        showOkDialog()
+    }
 
     Column(
         modifier = Modifier
@@ -431,7 +438,15 @@ fun BottomSheet(
                         fontSize = 15.sp
                     )
                     Button(
-                        onClick = { onRentCarClicked() }, // Función que llama a la función de alquiler del smart contract
+                        onClick = {
+                            if (btnAlquilar == "Alquilar") {
+                                onRentCarClicked()
+                                btnAlquilar = "Devolver"
+                            } else {
+                                onReturnCarClicked()
+                                btnAlquilar = "Alquilar"
+                            }
+                            },
                         Modifier
                             .padding(start = 90.dp, end = 30.dp)
                             .height(55.dp)
@@ -442,7 +457,7 @@ fun BottomSheet(
                             contentColor = Color.White
                         )
                     ) {
-                        Text(text = "Alquilar", fontSize = 18.sp)
+                        Text(text = btnAlquilar, fontSize = 18.sp)
                     }
                 }
             }
@@ -502,7 +517,7 @@ fun MyGoogleMaps(
     }
 
     if (myargsP!!.shouldexp == true) {
-        when (myargsP!!.modelo) {
+        when (myargsP.modelo) {
             "Born" -> cameraPositionState.position =
                 CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
             "500e" -> cameraPositionState.position =
@@ -858,8 +873,20 @@ private fun getRetrofit(): Retrofit {
         .build()
 }
 
+private var showDialog by mutableStateOf(false)
+private var btnAlquilar by mutableStateOf("Alquilar")
+private var dialogAlquiler by mutableStateOf("Coche alquilado!")
+private var returnCarDate by mutableStateOf("")
+private var rentalId by mutableStateOf(BigInteger.valueOf(1))
+private var rentalReturnCarMsg by mutableStateOf("")
+private var showProgressBar by mutableStateOf(true)
+
+
 private fun onRentCarClicked() {
     Log.i("RentFun", "Coche alquilado!")
+    showDialog = true
+
+    rentalReturnCarMsg = ""
 
     Thread(Runnable {
         val contract = getCarRentalContract()
@@ -871,55 +898,150 @@ private fun onRentCarClicked() {
         try {
             val transactionReceipt = contract.rentCar(carId, userId).send()
 
+
             // Aquí puedes manejar la respuesta de la transacción
             if (transactionReceipt.isStatusOK) {
                 // La transacción se completó correctamente
                 // Realiza cualquier acción adicional o muestra un mensaje de éxito
                 val transactionHash = transactionReceipt.transactionHash
                 Log.i("Transaccion OK", "Hash del alquiler: $transactionHash")
+
+                val events = contract.getRentalRegisteredEvents(transactionReceipt)
+
+                if (events.isNotEmpty()) {
+                    rentalId = events[0].id
+                    val rentDate = events[0].rentalDate
+
+                    // Convertir la fecha de BigInteger a un objeto de fecha adecuado
+                    val timestamp = rentDate.toLong()
+                    val date = Date(timestamp * 1000)  // Multiplica por 1000 si el valor es en segundos
+
+                    // Utilizar un formato de fecha para mostrar la fecha de devolución
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                    val formattedDate = sdf.format(date)
+
+                    // Verifica si se pudo obtener el ID del alquiler
+                    if (rentalId != null) {
+                        println("ID del alquiler: $rentalId")
+                        //dialogAlquiler = ""
+                        dialogAlquiler = "El coche ha sido alquilado!"
+                        returnCarDate = "Fecha y hora del alquiler:\n$formattedDate"
+                        showDialog = true
+                        showProgressBar = false
+                    } else {
+                        println("No se pudo obtener el ID del alquiler")
+                    }
+                }
+                // Mostrar el diálogo al completar la transacción
+
             } else {
                 // La transacción falló
-                // Muestra un mensaje de error o maneja el fallo de acuerdo a tus necesidades
+                // Muestra un mensaje de error o maneja el fallo
                 Log.i("Transaccion KO", "No se realizó la transacción")
             }
         } catch (e: Exception) {
             // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
             Log.i("No alquilado", "No se realizó la transacción: $e")
         }
-
-
-
-        /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
-        Log.d("TAG", "greeting value returned: $numrentals")*/
     }).start()
+}
 
+private fun onReturnCarClicked() {
+    Log.i("ReturnFun", "Coche devuelto!")
+    showDialog = true
+    showProgressBar = true
 
+    rentalReturnCarMsg = ""
+    returnCarDate = ""
 
-    // Descomentar cuando se agregue el contraro -->
-    /*
-    // Obtener instancia del contrato
-    val carRentalContract = Web3jSingleton.getCarRentalContract()
+    Thread(Runnable {
+        val contract = getCarRentalContract()
+        Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
 
-    // Obtener el saldo del usuario
-    // val userBalance = carRentalContract.getBalance().send().toLong()
+        try {
+            val transactionReceipt = contract.returnCar(rentalId).send()
 
-    // Obtener el precio del alquiler del coche
-    val rentalPrice = BigInteger("1000000000000000000") // En wei
+            // Aquí puedes manejar la respuesta de la transacción
+            if (transactionReceipt.isStatusOK) {
+                // La transacción se completó correctamente
+                // Realiza cualquier acción adicional o muestra un mensaje de éxito
+                val transactionHash = transactionReceipt.transactionHash
+                Log.i("Transaccion OK", "Hash de la devolución: $transactionHash")
 
+                val carReturnedEvents = contract.getCarReturnedEvents(transactionReceipt)
 
-    // Verificar si el usuario tiene suficiente saldo
-    if (userBalance >= rentalPrice.toLong()) {
-        // Ejecutar la transacción
-        val transactionReceipt = carRentalContract.rentCar().send()
+                if (carReturnedEvents.isNotEmpty()) {
+                    val renturnId = carReturnedEvents[0].id
+                    val returnDate = carReturnedEvents[0].returnDate
 
-        // Verificar si la transacción se ha realizado correctamente
-        if (transactionReceipt.isStatusOK) {
-            // La transacción se ha realizado correctamente, hacer algo aquí
-        } else {
-            // La transacción ha fallado, hacer algo aquí
+                    // Convertir la fecha de BigInteger a un objeto de fecha adecuado
+                    val timestamp = returnDate.toLong()
+                    val date = Date(timestamp * 1000)  // Multiplica por 1000 si el valor es en segundos
+
+                    // Utilizar un formato de fecha para mostrar la fecha de devolución
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                    val formattedDate = sdf.format(date)
+
+                    // Verifica si se pudo obtener el ID del return
+                    if (renturnId != null) {
+                        println("ID de la devolución: $renturnId")
+                        println("Fecha de la devolución: $formattedDate")
+                        //dialogAlquiler = ""
+                        dialogAlquiler = "El coche ha sido devuelto!"
+                        returnCarDate = "Fecha y hora de la devolución:\n$formattedDate"
+                        showDialog = true
+                        showProgressBar = false
+                    } else {
+                        println("No se pudo obtener el ID de la devolución")
+                    }
+                }
+                // Mostrar el diálogo al completar la transacción
+
+            } else {
+                // La transacción falló
+                // Muestra un mensaje de error o maneja el fallo
+                Log.i("Transaccion KO", "No se realizó la devolución")
+            }
+        } catch (e: Exception) {
+            // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+            Log.i("No devuelto", "No se realizó la transacción: $e")
         }
+    }).start()
+}
+
+@Composable
+private fun showOkDialog() {
+    if (btnAlquilar == "Alquilar") {
+        dialogAlquiler = "Devolviendo coche..."
     } else {
-        // El usuario no tiene suficiente saldo, hacer algo aquí
-    }*/
+        dialogAlquiler = "Alquilando coche..."
+    }
+    Dialog(onDismissRequest = {  }) {
+        AlertDialog(
+            modifier = Modifier.padding(16.dp),
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "$dialogAlquiler", fontSize = 20.sp) },
+            confirmButton = {
+                Button(onClick = { if (!showProgressBar) showDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFF2C2B34),
+                        contentColor = Color.White
+                    )) {
+                    Text(text = "Aceptar")
+                }
+            },
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "$returnCarDate")
+                    if (showProgressBar){
+                        CircularProgressIndicator( color = Color(0xFF2C2B34))
+                    }
+                }
+            }
+        )
+    }
 }
 

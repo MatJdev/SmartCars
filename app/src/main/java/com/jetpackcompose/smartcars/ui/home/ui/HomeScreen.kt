@@ -50,11 +50,16 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.maps.android.SphericalUtil
+import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.ui.data.DataViewModel
+import com.jetpackcompose.smartcars.ui.data.UserViewModel
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.map.ui.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.math.BigInteger
+import kotlinx.coroutines.flow.collect
+import com.jetpackcompose.smartcars.ui.data.model.User
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -75,11 +80,14 @@ fun HomeScreen(navController: NavController) {
         Log.i("Permisos", "Permisos denegados")
     }
 
+    readUserData("0")
+    Log.i("FIre Data User", "Email: $userEmailFire Name: $userNameFire Saldo: $userSaldoFire")
+
     Scaffold(navController)
 }
 
 @Composable
-fun info() {
+fun Info() {
     Row(modifier = Modifier.padding(start = 70.dp)) {
         Icon(
             Icons.Outlined.Info,
@@ -296,7 +304,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 }
 
 @Composable
-fun profileMap() {
+fun profileMap(navController: NavController) {
     Row(Modifier.padding(top = 20.dp, bottom = 20.dp)) {
         Card(
             elevation = 10.dp,
@@ -304,14 +312,17 @@ fun profileMap() {
             modifier = Modifier
                 .padding(start = 30.dp, end = 20.dp)
                 .width(150.dp)
-                .height(150.dp),
+                .height(150.dp)
+                .clickable { navController.navigate(
+                    route = "account_screen"
+                ) },
             backgroundColor = Color(0xFFE6E6E6),
             shape = RoundedCornerShape(20.dp)
         ) {
             Box(Modifier.padding(top = 20.dp, start = 35.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("https://www.pngitem.com/pimgs/m/551-5510463_default-user-image-png-transparent-png.png")
+                        .data(userImgFire)
                         .transformations(CircleCropTransformation())
                         .build(),
                     contentDescription = null,
@@ -321,12 +332,12 @@ fun profileMap() {
                 )
             }
             Text(
-                text = "Name",
+                text = userNameFire,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 100.dp)
             )
             Text(
-                text = "150 €",
+                text = "$userSaldoFire €",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 120.dp)
             )
@@ -549,9 +560,9 @@ fun Scaffold(navController: NavController) {
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            info()
+            Info()
             nearestCar(navController = navController)
-            profileMap()
+            profileMap(navController = navController)
             moreCars(ubicacionActual = ubicacionActual, navController = navController)
         }
     }
@@ -562,12 +573,54 @@ fun Scaffold(navController: NavController) {
 @Composable
 fun MyFab() {
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = {
+
+            Log.i("Boton FAB", "Funciona")
+            Thread(kotlinx.coroutines.Runnable {
+                val contract = Web3jSingleton.getCarRentalContract()
+                Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
+
+                val adminAccount = "0xdB089AA5d0c3FAC5f01FF87828801655Ebf7bB8A"
+                val wei = BigInteger.valueOf(3000000000000000)
+
+                try {
+                    val transactionReceipt = contract.updateBalance(adminAccount, wei).send()
+
+                    // Aquí puedes manejar la respuesta de la transacción
+                    if (transactionReceipt.isStatusOK) {
+                        // La transacción se completó correctamente
+                        // Realiza cualquier acción adicional o muestra un mensaje de éxito
+                        val transactionHash = transactionReceipt.transactionHash
+                        Log.i("Wei añadido OK", "Hash de la transacción: $transactionHash")
+                    } else {
+                        // La transacción falló
+                        // Muestra un mensaje de error o maneja el fallo
+                        Log.i("Wei no añadido KO", "No se realizó la transacción")
+                    }
+                } catch (e: Exception) {
+                    // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+                    Log.i("No agregado saldo", "No se realizó la transacción: $e")
+                }
+
+
+                /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
+                Log.d("TAG", "greeting value returned: $numrentals")*/
+            }).start()},
         backgroundColor = Color(0xFFE6E6E6),
         contentColor = Color(0xFF2C2B34)
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "add")
     }
+}
+
+@Composable
+fun dialogRentCar() {
+    AlertDialog(onDismissRequest = { /*TODO*/ },
+    confirmButton = { TextButton(onClick = { /*TODO*/ }) {
+        Text(text = "Aceptar")
+    }},
+    title = { Text(text = "Alquilar") },
+    text = { Text(text = "Coche alquilado") })
 }
 
 @Composable
@@ -681,5 +734,34 @@ fun fichaCar(
                 )
             }
         }
+    }
+}
+
+var userNameFire by mutableStateOf("Name")
+var userEmailFire by mutableStateOf("user@email.com")
+var userImgFire by mutableStateOf("https://www.pngitem.com/pimgs/m/551-5510463_default-user-image-png-transparent-png.png")
+var userMetamaskFire by mutableStateOf("")
+var userSaldoFire by mutableStateOf(0.0)
+
+@Composable
+fun readUserData(documentId: String) {
+    val viewModel: UserViewModel = viewModel()
+    val documentData by viewModel.documentData
+
+    LaunchedEffect(documentId) {
+        viewModel.readDocument(documentId)
+    }
+
+    if (documentData != null) {
+
+        val user = documentData
+        userNameFire = user?.name.toString()
+        userEmailFire = user?.email.toString()
+        userImgFire = user?.img.toString()
+        userMetamaskFire = user?.metamask.toString()
+        userSaldoFire = user?.saldo ?: 0.0
+
+    } else {
+        CircularProgressIndicator()
     }
 }

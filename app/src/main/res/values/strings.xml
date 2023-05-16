@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SmartCars</string>
     <string name="map_id">b229428d89730701</string>
+    <string name="common__logout">Log Out</string>
 </resources>

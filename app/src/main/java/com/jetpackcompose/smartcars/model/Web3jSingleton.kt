@@ -18,7 +18,7 @@ object Web3jSingleton {
         web3j = Web3j.build(httpProvider)
 
         // Inicializar credenciales
-        val privateKey = "" // your private key here
+        val privateKey = "12cf8530ef593ffb0efce6c7dfc80ee32d1f3202e44b8e7f8b789099995130b7" // your private key here
         credentials = Credentials.create(privateKey)
 
         // Inicializar instancia del contrato
