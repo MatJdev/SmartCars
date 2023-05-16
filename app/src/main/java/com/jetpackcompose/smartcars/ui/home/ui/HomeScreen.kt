@@ -43,18 +43,25 @@ import com.google.maps.android.compose.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.maps.android.SphericalUtil
+import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.ui.data.DataViewModel
+import com.jetpackcompose.smartcars.ui.data.UserViewModel
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.map.ui.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.math.BigInteger
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -75,12 +82,17 @@ fun HomeScreen(navController: NavController) {
         Log.i("Permisos", "Permisos denegados")
     }
 
+    readUserData("0")
+    Log.i("FIre Data User", "Email: $userEmailFire Name: $userNameFire Saldo: $userSaldoFire")
+
     Scaffold(navController)
 }
 
 @Composable
-fun info() {
-    Row(modifier = Modifier.padding(start = 70.dp)) {
+fun Info() {
+    Row(modifier = Modifier
+        .padding(start = 70.dp)
+        .fillMaxWidth()) {
         Icon(
             Icons.Outlined.Info,
             contentDescription = "",
@@ -148,11 +160,6 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 
     var ubica = LatLng(lat, long)
 
-    /*val distancia1 = SphericalUtil.computeDistanceBetween(ubica, LatLng(36.527809, -6.293338))
-    Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
-
-    val distkm = distancia1/1000*/
-
     val getData = dataViewModel.state.value
 
     // Ordenar la lista de Car según su distancia a la ubicacion del usuario
@@ -198,7 +205,6 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 
         val distkm = distancia1 / 1000
 
-        // Hacer algo con el objeto Car más cercano, por ejemplo, mostrar sus detalles en pantalla
         scope.launch {
 
             while (getData == null || getData.isEmpty()) {
@@ -269,17 +275,22 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
             fontWeight = FontWeight.Bold,
             color = Color(0xFF2C2B34)
         )
-        Row(Modifier.padding(top = 195.dp)) {
+        Row(
+            Modifier
+                .padding(top = 195.dp, start = 20.dp, end = 20.dp)
+                .fillMaxWidth()) {
             Icon(
                 Icons.Outlined.NearMe,
                 contentDescription = "",
                 Modifier
-                    .padding(start = 20.dp)
+                    .padding(start = 0.dp)
                     .size(18.dp)
             )
             Text(
                 text = "< " + "%.2f".format(distCar.value) + " km",
-                modifier = Modifier.padding(start = 2.dp)
+                modifier = Modifier
+                    .padding(start = 2.dp)
+                    .weight(1f) // Ocupa todo el espacio disponible
             )
             Icon(
                 Icons.Outlined.BatteryChargingFull,
@@ -288,30 +299,42 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
                     .padding(start = 30.dp)
                     .size(18.dp)
             )
-            Text(text = "${bateriaCar.value}%", modifier = Modifier.padding(start = 2.dp))
-            Text(text = "${precioCar.value}€/h", modifier = Modifier.padding(start = 70.dp))
+            Text(
+                text = "${bateriaCar.value}%",
+                modifier = Modifier.padding(start = 2.dp)
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "${precioCar.value}€/h",
+                modifier = Modifier.padding(end = 0.dp),
+                textAlign = TextAlign.End
+            )
         }
-
     }
 }
 
 @Composable
-fun profileMap() {
-    Row(Modifier.padding(top = 20.dp, bottom = 20.dp)) {
+fun profileMap(navController: NavController) {
+    Row(
+        Modifier
+            .padding(top = 20.dp, bottom = 20.dp, start = 30.dp, end = 30.dp)
+            .fillMaxWidth()
+    ) {
         Card(
             elevation = 10.dp,
             border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
             modifier = Modifier
-                .padding(start = 30.dp, end = 20.dp)
-                .width(150.dp)
-                .height(150.dp),
+                .weight(1f)
+                .padding(end = 10.dp)
+                .height(150.dp)
+                .clickable { navController.navigate("account_screen") },
             backgroundColor = Color(0xFFE6E6E6),
             shape = RoundedCornerShape(20.dp)
         ) {
             Box(Modifier.padding(top = 20.dp, start = 35.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("https://www.pngitem.com/pimgs/m/551-5510463_default-user-image-png-transparent-png.png")
+                        .data(userImgFire)
                         .transformations(CircleCropTransformation())
                         .build(),
                     contentDescription = null,
@@ -321,23 +344,24 @@ fun profileMap() {
                 )
             }
             Text(
-                text = "Name",
+                text = userNameFire,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 100.dp)
             )
             Text(
-                text = "150 €",
+                text = "$userSaldoFire €",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 120.dp)
             )
         }
 
+        Spacer(modifier = Modifier.width(20.dp))
+
         Card(
             elevation = 10.dp,
             border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
             modifier = Modifier
-                .padding(start = 10.dp, end = 30.dp)
-                .width(150.dp)
+                .weight(1f)
                 .height(150.dp),
             backgroundColor = Color(0xFFE6E6E6),
             shape = RoundedCornerShape(20.dp)
@@ -345,6 +369,7 @@ fun profileMap() {
             miniMap()
         }
     }
+
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -418,7 +443,7 @@ fun moreCars(
         border = BorderStroke(1.dp, Color.LightGray),
         modifier = Modifier
             .padding(start = 30.dp, end = 30.dp)
-            .width(340.dp)
+            .fillMaxWidth()
             .height(200.dp),
         backgroundColor = Color(0xFF2C2B34),
         shape = RoundedCornerShape(20.dp)
@@ -444,13 +469,13 @@ fun moreCars(
             Canvas(
                 modifier = Modifier
                     .height(10.dp)
-                    .width(300.dp)
-                    .wrapContentSize()
+                    .fillMaxWidth()
+                    .padding(end = 30.dp, start = 10.dp, top = 10.dp)
             ) {
                 drawLine(
                     color = Color.LightGray,
-                    start = Offset(x = -400f, y = 20f),
-                    end = Offset(x = 400f, y = 20f),
+                    start = Offset(x = 0f, y = size.height / 2),
+                    end = Offset(x = size.width, y = size.height / 2),
                     strokeWidth = 2.dp.toPx(),
                     cap = StrokeCap.Round
                 )
@@ -549,9 +574,9 @@ fun Scaffold(navController: NavController) {
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            info()
+            Info()
             nearestCar(navController = navController)
-            profileMap()
+            profileMap(navController = navController)
             moreCars(ubicacionActual = ubicacionActual, navController = navController)
         }
     }
@@ -561,12 +586,176 @@ fun Scaffold(navController: NavController) {
 //Este componente se usa en las demás screen se llama directamente desde aquí
 @Composable
 fun MyFab() {
+    val showDialog = remember { mutableStateOf(false) }
+    val selectedOption = remember { mutableStateOf<Option?>(null) }
+
+    if (showDialog.value) {
+        OptionDialog(
+            options = listOf(
+                Option.Option1,
+                Option.Option2,
+                Option.Option3
+            ),
+            onOptionSelected = { option ->
+                selectedOption.value = option
+                showDialog.value = false
+            },
+            onDismiss = { showDialog.value = false }
+        )
+    }
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = {
+            showDialog.value = true
+                  },
         backgroundColor = Color(0xFFE6E6E6),
         contentColor = Color(0xFF2C2B34)
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "add")
+    }
+}
+
+sealed class Option(val label: String) {
+    object None : Option("Ninguna")
+    object Option1 : Option("10€")
+    object Option2 : Option("25€")
+    object Option3 : Option("50€")
+}
+
+@Composable
+fun OptionDialog(
+    options: List<Option>,
+    onOptionSelected: (Option) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val selectedOption = remember { mutableStateOf<Option?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Seleccione que cantidad de saldo desea introducir:",
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        ) },
+        buttons = {
+            Column(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                options.forEach { option ->
+                    val isChecked = option == selectedOption.value
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = isChecked,
+                            onClick = {
+                                selectedOption.value = option
+                            }
+                        )
+                        Text(
+                            text = option.label,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            selectedOption.value?.let { option ->
+                                onOptionSelected(option)
+                                val saldo = when(option.label){
+                                    "10€" ->  10
+                                    "25€" ->  25
+                                    "50€" ->  50
+                                    else -> { 0 }
+                                }
+                                updateBalance(saldo)
+                            }
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(0xFF2C2B34),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Aceptar")
+                    }
+
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(0xFF2C2B34),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Cancelar")
+                    }
+                }
+            }
+        }
+    )
+}
+
+fun updateBalance(saldo: Int) {
+    Thread(kotlinx.coroutines.Runnable {
+        val contract = Web3jSingleton.getCarRentalContract()
+        Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
+
+        val adminAccount = "0xdB089AA5d0c3FAC5f01FF87828801655Ebf7bB8A"
+        val wei = when(saldo) {
+            10 -> BigInteger.valueOf(5900000000000000)
+            25 -> BigInteger.valueOf(15000000000000000)
+            50 -> BigInteger.valueOf(29000000000000000)
+            else -> { BigInteger.valueOf(0) }
+        }
+
+        try {
+            val transactionReceipt = contract.updateBalance(adminAccount, wei).send()
+
+            if (transactionReceipt.isStatusOK) {
+                // La transacción se completó correctamente
+                val transactionHash = transactionReceipt.transactionHash
+                Log.i("Wei añadido OK", "Hash de la transacción: $transactionHash")
+            } else {
+                // La transacción falló
+                Log.i("Wei no añadido KO", "No se realizó la transacción")
+            }
+        } catch (e: Exception) {
+            // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+            Log.i("No agregado saldo", "No se realizó la transacción: $e")
+        }
+
+
+        /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
+        Log.d("TAG", "greeting value returned: $numrentals")*/
+    }).start()
+}
+
+@Composable
+fun rentDialog(show: Boolean) {
+    if (show){
+        AlertDialog(
+            onDismissRequest = { /* Acción al cerrar el diálogo */ },
+            title = {
+                Text(text = "Info!")
+            },
+            text = {
+                Text(text = "Saldo agregado con éxito")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { /* Acción al hacer clic en el botón de confirmación */ }
+                ) {
+                    Text(text = "Confirmar")
+                }
+            }
+        )
     }
 }
 
@@ -625,12 +814,11 @@ fun fichaCar(
     val gson = Gson()
     val myArgsJson = gson.toJson(Arguments)
 
-    Row() {
+    Row(Modifier.fillMaxWidth()) {
         Column() {
             Text(text = "${marca.value} ${modelo.value}", fontSize = 20.sp, color = Color.White)
             Row(
-                Modifier
-                    .padding(top = 5.dp)
+                Modifier.padding(top = 5.dp)
             ) {
                 Icon(
                     Icons.Outlined.NearMe,
@@ -662,24 +850,61 @@ fun fichaCar(
             }
         }
         Column() {
-            IconButton(
-                onClick = {
-                    navController.navigate(
-                        route = AppScreens.MapScreen.createRoute(
-                            myArgsJson
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.End)
+                    .padding(end = 20.dp),
+                contentAlignment = Alignment.CenterEnd) {
+                IconButton(
+                    onClick = {
+                        navController.navigate(
+                            route = AppScreens.MapScreen.createRoute(
+                                myArgsJson
+                            )
                         )
+                    },
+                    modifier = Modifier.padding(start = 0.dp, top = 5.dp)
+                ) {
+                    Icon(
+                        Icons.Outlined.ArrowCircleRight,
+                        contentDescription = "",
+                        Modifier
+                            .size(48.dp),
+                        tint = Color.White
                     )
-                },
-                modifier = Modifier.padding(start = 60.dp, top = 5.dp)
-            ) {
-                Icon(
-                    Icons.Outlined.ArrowCircleRight,
-                    contentDescription = "",
-                    Modifier
-                        .size(48.dp),
-                    tint = Color.White
-                )
+                }
             }
+
         }
+    }
+}
+
+var userNameFire by mutableStateOf("Name")
+var userEmailFire by mutableStateOf("user@email.com")
+var userImgFire by mutableStateOf("https://www.pngitem.com/pimgs/m/551-5510463_default-user-image-png-transparent-png.png")
+var userMetamaskFire by mutableStateOf("")
+var userSaldoFire by mutableStateOf(0.0)
+
+@Composable
+fun readUserData(documentId: String) {
+    val viewModel: UserViewModel = viewModel()
+    val documentData by viewModel.documentData
+
+    LaunchedEffect(documentId) {
+        viewModel.readDocument(Firebase.auth.currentUser?.uid.toString())
+    }
+
+    if (documentData != null) {
+
+        val user = documentData
+        userNameFire = user?.name.toString()
+        userEmailFire = user?.email.toString()
+        userImgFire = user?.img.toString()
+        userMetamaskFire = user?.metamask.toString()
+        userSaldoFire = user?.saldo ?: 0.0
+
+    } else {
+        CircularProgressIndicator()
     }
 }

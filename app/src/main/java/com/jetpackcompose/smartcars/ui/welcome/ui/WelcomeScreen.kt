@@ -18,7 +18,6 @@ import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
 
-//@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun WelcomeScreen(navController: NavController) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {

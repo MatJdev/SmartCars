@@ -8,15 +8,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,42 +31,85 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.jetpackcompose.smartcars.R
 import com.jetpackcompose.smartcars.navigation.AppScreens
+import com.jetpackcompose.smartcars.ui.login.ui.LoginViewModel
 
 //Cambiar para usar los mismos componentes del loginScreen
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     Box {
         BackGround()
         Logo()
         Text()
-        Row1()
-        EmailPass()
-        Btn(navController)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 56.dp)
+        ) {
+            Row1()
+            EmailPass(navController, viewModel)
+        }
     }
-
 }
 
 @Composable
 fun Row1() {
-    Text(text = "Log in", modifier = Modifier.padding(top = 330.dp, start = 70.dp),
-        fontWeight = FontWeight.ExtraBold,
-        style = TextStyle(
-            fontSize = 20.sp)
-    )
-    Text(text = "Sign up", modifier = Modifier.padding(top = 330.dp, start = 260.dp),
-        fontWeight = FontWeight.Bold, fontSize = 20.sp,
-        style = TextStyle(textDecoration = TextDecoration.Underline))
+    Row(
+        Modifier
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "Log in", modifier = Modifier
+                .padding(top = 330.dp)
+                .weight(1f),
+            fontWeight = FontWeight.ExtraBold,
+            style = TextStyle(
+                fontSize = 20.sp
+            ),
+            textAlign = TextAlign.Start
+        )
+        Text(
+            text = "Sign up", modifier = Modifier
+                .padding(top = 330.dp)
+                .weight(1f),
+            fontWeight = FontWeight.Bold, fontSize = 20.sp,
+            style = TextStyle(textDecoration = TextDecoration.Underline),
+            textAlign = TextAlign.End
+        )
+    }
 }
 
 @Composable
-fun EmailPass() {
+fun EmailPass(navController: NavController, viewModel: LoginViewModel) {
     var textEmail by remember { mutableStateOf("") }
     var textPass by remember { mutableStateOf("") }
 
-    Text(text = "Enter Email", modifier = Modifier.padding(top = 390.dp, start = 70.dp))
-    TextField(value = textEmail, onValueChange = { textEmail = it },
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    val valido = remember(textEmail, textPass){
+        textEmail.trim().isNotEmpty() && textPass.trim().isNotEmpty()
+    }
+
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    if (showErrorDialog) {
+        val context = LocalContext.current
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            title = { Text(text = "Información!") },
+            text = { Text(text = "No se ha podido iniciar sesión.") },
+            confirmButton = {
+                Button(onClick = { showErrorDialog = false }) {
+                    Text(text = "Aceptar")
+                }
+            }
+        )
+    }
+
+    Text(text = "Enter Email", modifier = Modifier.padding(top = 40.dp))
+    TextField(
+        value = textEmail, onValueChange = { textEmail = it },
         modifier = Modifier
-            .padding(top = 420.dp, start = 60.dp)
+            .padding(top = 10.dp)
             .border(
                 border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
@@ -77,10 +126,18 @@ fun EmailPass() {
         )
     )
 
-    Text(text = "Create Password", modifier = Modifier.padding(top = 490.dp, start = 70.dp))
-    TextField(value = textPass, onValueChange = { textPass = it},
+    Text(text = "Create Password", modifier = Modifier.padding(top = 20.dp))
+    TextField(
+        value = textPass, onValueChange = { textPass = it },
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(icon, contentDescription = "Toggle password visibility")
+            }
+        },
         modifier = Modifier
-            .padding(top = 520.dp, start = 60.dp)
+            .padding(top = 10.dp)
             .border(
                 border = BorderStroke(2.dp, Color(0xFF2C2B34)),
                 shape = RoundedCornerShape(12.dp)
@@ -96,52 +153,104 @@ fun EmailPass() {
             unfocusedIndicatorColor = Color.Transparent
         )
     )
+
+    Column(Modifier.padding(top = 30.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    viewModel.createUserWithEmailAndPassword(textEmail, textPass) {
+                        viewModel.createUserDataBase(textEmail)
+                        navController.navigate(route = AppScreens.HomeScreen.route)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF2C2B34),
+                    contentColor = Color.White
+                ), modifier = Modifier.width(140.dp), enabled = valido
+            ) {
+                Text(text = "Sign Up")
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TextButton(
+                onClick = { navController.navigate(route = AppScreens.LoginScreen.route) },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF2C2B34)
+                ), modifier = Modifier.padding(start = 10.dp)
+            ) {
+                Text(text = "Or login here")
+            }
+        }
+    }
 }
 
 @Composable
 fun Btn(navController: NavController) {
-    Column(Modifier.padding(top = 620.dp, start = 130.dp)) {
-        Button(onClick = {
+    Column(Modifier.padding(top = 30.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
 
-        },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFF2C2B34),
-                contentColor = Color.White
-            ), modifier = Modifier.width(140.dp)){
-            Text(text="Sign Up")
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF2C2B34),
+                    contentColor = Color.White
+                ), modifier = Modifier.width(140.dp)
+            ) {
+                Text(text = "Sign Up")
+            }
         }
 
-        TextButton(onClick = { navController.navigate(route = AppScreens.LoginScreen.route) },
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = Color(0xFF2C2B34)
-            ), modifier = Modifier.padding(start = 10.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Or login here")
+            TextButton(
+                onClick = { navController.navigate(route = AppScreens.LoginScreen.route) },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF2C2B34)
+                ), modifier = Modifier.padding(start = 10.dp)
+            ) {
+                Text(text = "Or login here")
+            }
         }
     }
-
 }
 
 @Composable
 fun Text() {
-    Text( text = "Hey!\nJoin Now!",
+    Text(
+        text = "Hey!\nJoin Now!",
         modifier = Modifier.padding(top = 190.dp, start = 40.dp),
         color = Color.White,
-        fontSize = 35.sp)
+        fontSize = 35.sp
+    )
 }
 
 @Composable
 fun Logo() {
-    Image(painter = painterResource(id = R.drawable.cocheelectrico), contentDescription = "",
+    Image(
+        painter = painterResource(id = R.drawable.cocheelectrico), contentDescription = "",
         modifier = Modifier
             .width(270.dp)
-            .padding(start = 140.dp, top = 60.dp))
+            .padding(start = 140.dp, top = 60.dp)
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BackGround() {
-    ConstraintLayout(modifier = Modifier.fillMaxSize()){
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
         val (BoxLight, BoxDark) = createRefs()
         val guiaHorizontalTop = createGuidelineFromTop(0.4f)
@@ -149,12 +258,13 @@ fun BackGround() {
         Box(modifier = Modifier
             .background(color = Color(0xFF2C2B34))
             .constrainAs(BoxDark) {}
-            .fillMaxSize()){
+            .fillMaxSize()) {
 
         }
         Box(
             modifier = Modifier
-                .size(width = 400.dp, height = 800.dp)
+                .height(800.dp)
+                .fillMaxWidth()
                 .clip(
                     shape = RoundedCornerShape(
                         topStart = 40.dp,

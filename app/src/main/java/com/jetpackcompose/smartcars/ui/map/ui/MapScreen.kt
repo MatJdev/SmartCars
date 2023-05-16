@@ -39,14 +39,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.model.Web3jSingleton.getCarRentalContract
-import com.jetpackcompose.smartcars.navigation.AppScreens
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
-import org.web3j.protocol.core.RemoteFunctionCall
+import com.jetpackcompose.smartcars.ui.data.model.Transactions
 import java.math.BigInteger
-import java.util.concurrent.Future
+import java.text.SimpleDateFormat
 
 
 @Composable
@@ -54,16 +57,10 @@ fun MapScreen(
     navController: NavController,
     myargsP: String?
 ) {
-    //Scaffold(navController)
-    Log.i("Prueba1 Json", myargsP!!)
     BottomSheetScaffold(navController = navController, myargsP = myargsP)
-    /*Thread(Runnable {
-        val contract = Web3jSingleton.getCarRentalContract()
-        Log.i("Last rentcar", "${contract.numRentals().send()}")
-    }).start()*/
 }
 
-//@Preview(showBackground = true, showSystemUi = true)
+
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -113,7 +110,7 @@ fun Scaffold(
 
 }
 
-//@Preview(showBackground = true, showSystemUi = true)
+
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -127,8 +124,7 @@ fun BottomSheetScaffold(
             initialValue = BottomSheetValue.Collapsed
         )
     )
-    //Habrá que crear variables como esta de modelo para poder cambiar los datos de detro del
-    //BottomSheet desde otros componentes más concretamente desde el componente de los custom markers
+
     var modelo = rememberSaveable { mutableStateOf(0) }
     var precio = rememberSaveable { mutableStateOf("10") }
     var imgCar =
@@ -192,9 +188,6 @@ fun BottomSheetScaffold(
 
     }
 
-
-
-    Log.i("Prueba shouldexp", myArgs.shouldexp.toString())
     // Usar un efecto para expandir la hoja inferior solo si el argumento booleano es verdadero
 
     LaunchedEffect(myArgs.shouldexp) {
@@ -233,9 +226,11 @@ fun BottomSheet(
 ) {
     val getData = dataViewModel.state.value
 
-    Log.i("Datos en Map", getData.toString())
-// Creates a CoroutineScope bound to the MoviesScreen's lifecycle
     val scope = rememberCoroutineScope()
+
+    if (showDialog) {
+        showOkDialog()
+    }
 
     Column(
         modifier = Modifier
@@ -245,23 +240,6 @@ fun BottomSheet(
         Box() {
             Bg()
             Row() {
-                /*TextButton(onClick = {
-                    scope.launch {
-                        bottomSheetScaffoldState.bottomSheetState.collapse()
-                    }
-                },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = Color(0xFF2C2B34)
-                    ), modifier = Modifier.padding(start = 330.dp, top = 8.dp)
-                ) {
-                    Icon(
-                        Icons.Outlined.Cancel,
-                        contentDescription = "",
-                        Modifier
-                            .size(18.dp),
-                        tint = Color.White
-                    )
-                }*/
                 IconButton(
                     onClick = {
                         scope.launch {
@@ -431,7 +409,21 @@ fun BottomSheet(
                         fontSize = 15.sp
                     )
                     Button(
-                        onClick = { onRentCarClicked() }, // Función que llama a la función de alquiler del smart contract
+                        onClick = {
+                            if (btnAlquilar == "Alquilar") {
+                                onRentCarClicked(
+                                    "${marcaCar.value} ${modeloCar.value}",
+                                    Firebase.auth.currentUser?.uid.toString()
+                                )
+                                btnAlquilar = "Devolver"
+                            } else {
+                                onReturnCarClicked(
+                                    "${marcaCar.value} ${modeloCar.value}",
+                                    Firebase.auth.currentUser?.uid.toString()
+                                )
+                                btnAlquilar = "Alquilar"
+                            }
+                        },
                         Modifier
                             .padding(start = 90.dp, end = 30.dp)
                             .height(55.dp)
@@ -442,7 +434,7 @@ fun BottomSheet(
                             contentColor = Color.White
                         )
                     ) {
-                        Text(text = "Alquilar", fontSize = 18.sp)
+                        Text(text = btnAlquilar, fontSize = 18.sp)
                     }
                 }
             }
@@ -450,8 +442,6 @@ fun BottomSheet(
         }
 
     }
-
-    Log.i("datos al final", getData.toString())
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -481,7 +471,6 @@ fun MyGoogleMaps(
         LatLng(36.527809, -6.293338)
     )
 
-    //Ejemplo para calcular distancia entre dos puntos
     //Usar esto para calcular distancia entre ubicacion del usuario y los coches
     val distancia1 = SphericalUtil.computeDistanceBetween(locations[0], locations[1])
     Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
@@ -502,43 +491,29 @@ fun MyGoogleMaps(
     }
 
     if (myargsP!!.shouldexp == true) {
-        when (myargsP!!.modelo) {
+        when (myargsP.modelo) {
             "Born" -> cameraPositionState.position =
                 CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
             "500e" -> cameraPositionState.position =
                 CameraPosition.fromLatLngZoom(LatLng(36.529223, -6.289575), 17f)
             "AMI E" -> cameraPositionState.position =
                 CameraPosition.fromLatLngZoom(LatLng(36.527809, -6.293338), 17f)
+            "Model 3" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.531182, -6.291643), 17f)
+            "Model S" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.528921, -6.296589), 17f)
+            "Cooper SE" -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.528935, -6.295966), 17f)
+            else -> cameraPositionState.position =
+                CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
         }
     }
-
-    /*val mapProperties by remember {
-        mutableStateOf(
-            MapProperties(
-                mapStyleOptions = MapStyleOptions(MapStyle.json)
-            )
-        )
-    }*/
-
-    /*var latCar =  rememberSaveable { mutableStateOf(0.0) }
-    var lngCar =  rememberSaveable { mutableStateOf(0.0) }*/
 
     GoogleMap(modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(isMyLocationEnabled = true, mapType = MapType.HYBRID),
         googleMapOptionsFactory = { GoogleMapOptions().mapId(R.string.map_id.toString()) }
     ) {
-        //var loc = locations.shuffled()
-
-        /*
-        Polyline(
-            points = listOf(
-                LatLng(36.529058, -6.294142),
-                LatLng(36.528935, -6.295966)
-            ),
-            color = Color.Green
-        )
-        */
 
         MapMarker(
             position = locations[2],
@@ -734,25 +709,7 @@ fun MapMarker(
         scope.launch {
             modeloNum.setValue(value = num)
             val getData = dataViewModel.state.value
-            //getData[0]?.let { precioCar.setValue(value = it.precio) }
-            /*runBlocking {
-                launch {
-                    while (getData == null || getData.isEmpty()) {
-                        delay(200L) // esperar un segundo
-                    }
-                    // ejecutar código aquí
-                    Log.i("datos al final", getData.toString())
-                    precioCar.setValue(getData[num]!!.precio)
-                    imgCar.setValue(getData[num]!!.img)
-                    modeloCar.setValue(getData[num]!!.modelo)
-                    marcaCar.setValue(getData[num]!!.marca)
-                    bateriaCar.setValue(getData[num]!!.bateria)
-                    motorCar.setValue(getData[num]!!.motor)
-                    cargaCar.setValue(getData[num]!!.carga)
-                    aceleracionCar.setValue(getData[num]!!.aceleracion)
-                    maleteroCar.setValue(getData[num]!!.maletero)
-                }
-            }*/
+
             while (getData == null || getData.isEmpty()) {
                 delay(200L) // esperar un segundo
             }
@@ -777,10 +734,7 @@ fun MapMarker(
             else
                 bottomSheetState.bottomSheetState.collapse()
         }
-        /*
-        createRoute() //Descomentar cuando se termine de implementar el codigo para llamar a la api
-        Log.i("aris", polyLineOptions.toString())
-        */
+
     }
 
 
@@ -858,8 +812,20 @@ private fun getRetrofit(): Retrofit {
         .build()
 }
 
-private fun onRentCarClicked() {
+private var showDialog by mutableStateOf(false)
+private var btnAlquilar by mutableStateOf("Alquilar")
+private var dialogAlquiler by mutableStateOf("Coche alquilado!")
+private var returnCarDate by mutableStateOf("")
+private var rentalId by mutableStateOf(BigInteger.valueOf(1))
+private var rentalReturnCarMsg by mutableStateOf("")
+private var showProgressBar by mutableStateOf(true)
+
+
+private fun onRentCarClicked(idCar: String, idUser: String) {
     Log.i("RentFun", "Coche alquilado!")
+    showDialog = true
+
+    rentalReturnCarMsg = ""
 
     Thread(Runnable {
         val contract = getCarRentalContract()
@@ -871,55 +837,168 @@ private fun onRentCarClicked() {
         try {
             val transactionReceipt = contract.rentCar(carId, userId).send()
 
-            // Aquí puedes manejar la respuesta de la transacción
+
             if (transactionReceipt.isStatusOK) {
                 // La transacción se completó correctamente
-                // Realiza cualquier acción adicional o muestra un mensaje de éxito
                 val transactionHash = transactionReceipt.transactionHash
                 Log.i("Transaccion OK", "Hash del alquiler: $transactionHash")
+
+                val events = contract.getRentalRegisteredEvents(transactionReceipt)
+
+                if (events.isNotEmpty()) {
+                    rentalId = events[0].id
+                    val rentDate = events[0].rentalDate
+
+                    // Convertir la fecha de BigInteger a un objeto de fecha adecuado
+                    val timestamp = rentDate.toLong()
+                    val date = Date(timestamp * 1000)  // Multiplica por 1000 si el valor es en segundos
+
+                    // Utilizar un formato de fecha para mostrar la fecha de devolución
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                    val formattedDate = sdf.format(date)
+
+                    // Verifica si se pudo obtener el ID del alquiler
+                    if (rentalId != null) {
+                        println("ID del alquiler: $rentalId")
+                        //dialogAlquiler = ""
+                        dialogAlquiler = "El coche ha sido alquilado!"
+                        returnCarDate = "Fecha y hora del alquiler:\n$formattedDate"
+                        showDialog = true
+                        showProgressBar = false
+                        setTransaction(formattedDate, transactionHash, idCar, idUser, "Alquiler de vehículo")
+                    } else {
+                        println("No se pudo obtener el ID del alquiler")
+                    }
+                }
+                // Mostrar el diálogo al completar la transacción
+
             } else {
                 // La transacción falló
-                // Muestra un mensaje de error o maneja el fallo de acuerdo a tus necesidades
+                // Muestra un mensaje de error o maneja el fallo
                 Log.i("Transaccion KO", "No se realizó la transacción")
             }
         } catch (e: Exception) {
             // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
             Log.i("No alquilado", "No se realizó la transacción: $e")
         }
-
-
-
-        /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
-        Log.d("TAG", "greeting value returned: $numrentals")*/
     }).start()
+}
 
+private fun onReturnCarClicked(idCar: String, idUser: String) {
+    Log.i("ReturnFun", "Coche devuelto!")
+    showDialog = true
+    showProgressBar = true
 
+    rentalReturnCarMsg = ""
+    returnCarDate = ""
 
-    // Descomentar cuando se agregue el contraro -->
-    /*
-    // Obtener instancia del contrato
-    val carRentalContract = Web3jSingleton.getCarRentalContract()
+    Thread(Runnable {
+        val contract = getCarRentalContract()
+        Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
 
-    // Obtener el saldo del usuario
-    // val userBalance = carRentalContract.getBalance().send().toLong()
+        try {
+            val transactionReceipt = contract.returnCar(rentalId).send()
 
-    // Obtener el precio del alquiler del coche
-    val rentalPrice = BigInteger("1000000000000000000") // En wei
+            if (transactionReceipt.isStatusOK) {
+                // La transacción se completó correctamente
+                val transactionHash = transactionReceipt.transactionHash
+                Log.i("Transaccion OK", "Hash de la devolución: $transactionHash")
 
+                val carReturnedEvents = contract.getCarReturnedEvents(transactionReceipt)
 
-    // Verificar si el usuario tiene suficiente saldo
-    if (userBalance >= rentalPrice.toLong()) {
-        // Ejecutar la transacción
-        val transactionReceipt = carRentalContract.rentCar().send()
+                if (carReturnedEvents.isNotEmpty()) {
+                    val renturnId = carReturnedEvents[0].id
+                    val returnDate = carReturnedEvents[0].returnDate
 
-        // Verificar si la transacción se ha realizado correctamente
-        if (transactionReceipt.isStatusOK) {
-            // La transacción se ha realizado correctamente, hacer algo aquí
-        } else {
-            // La transacción ha fallado, hacer algo aquí
+                    // Convertir la fecha de BigInteger a un objeto de fecha adecuado
+                    val timestamp = returnDate.toLong()
+                    val date = Date(timestamp * 1000)  // Multiplica por 1000 si el valor es en segundos
+
+                    // Utilizar un formato de fecha para mostrar la fecha de devolución
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                    val formattedDate = sdf.format(date)
+
+                    // Verifica si se pudo obtener el ID del return
+                    if (renturnId != null) {
+                        println("ID de la devolución: $renturnId")
+                        println("Fecha de la devolución: $formattedDate")
+                        //dialogAlquiler = ""
+                        dialogAlquiler = "El coche ha sido devuelto!"
+                        returnCarDate = "Fecha y hora de la devolución:\n$formattedDate"
+                        showDialog = true
+                        showProgressBar = false
+                        setTransaction(formattedDate, transactionHash, idCar, idUser, "Devolución de vehículo")
+                    } else {
+                        println("No se pudo obtener el ID de la devolución")
+                    }
+                }
+                // Mostrar el diálogo al completar la transacción
+
+            } else {
+                // La transacción falló
+                // Muestra un mensaje de error o maneja el fallo
+                Log.i("Transaccion KO", "No se realizó la devolución")
+            }
+        } catch (e: Exception) {
+            // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+            Log.i("No devuelto", "No se realizó la transacción: $e")
         }
+    }).start()
+}
+
+@Composable
+private fun showOkDialog() {
+    if (btnAlquilar == "Alquilar") {
+        dialogAlquiler = "Devolviendo coche..."
     } else {
-        // El usuario no tiene suficiente saldo, hacer algo aquí
-    }*/
+        dialogAlquiler = "Alquilando coche..."
+    }
+    Dialog(onDismissRequest = { }) {
+        AlertDialog(
+            modifier = Modifier.padding(16.dp),
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "$dialogAlquiler", fontSize = 20.sp) },
+            confirmButton = {
+                Button(
+                    onClick = { if (!showProgressBar) showDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFF2C2B34),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = "Aceptar")
+                }
+            },
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "$returnCarDate")
+                    if (showProgressBar) {
+                        CircularProgressIndicator(color = Color(0xFF2C2B34))
+                    }
+                }
+            }
+        )
+    }
+}
+
+fun setTransaction(date: String, hash: String, idCar: String, idUser: String, accion: String) {
+    val db = FirebaseFirestore.getInstance()
+    val coleccion = db.collection("transactions")
+
+    val transaction = Transactions(date, hash, idCar, idUser, accion)
+
+    coleccion.add(transaction)
+        .addOnSuccessListener { documento ->
+            val idDocumento = documento.id
+            // Registro exitoso con ID generado automáticamente
+            Log.i("Document ID", idDocumento)
+        }
+        .addOnFailureListener { e ->
+            // Error al registrar los datos
+        }
+
 }
 

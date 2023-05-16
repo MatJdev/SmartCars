@@ -81,6 +81,25 @@ public class CarRentalContract extends Contract {
         return responses;
     }*/
 
+    public List<CarReturnedEventResponse> getCarReturnedEvents(
+            TransactionReceipt transactionReceipt) {
+
+        List<EventValuesWithLog> valueList = extractEventParametersWithLog(
+                CARRETURNED_EVENT, transactionReceipt);
+
+        ArrayList<CarReturnedEventResponse> responses = new ArrayList<>(
+                valueList.size());
+        for (EventValuesWithLog eventValues : valueList) {
+            CarReturnedEventResponse typedResponse = new CarReturnedEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.returnDate = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+            responses.add(typedResponse);
+        }
+
+        return responses;
+    }
+
     public Flowable<CarReturnedEventResponse> carReturnedEventFlowable(EthFilter filter) {
         return web3j.ethLogFlowable(filter).map(new Function<Log, CarReturnedEventResponse>() {
             @Override
@@ -115,6 +134,27 @@ public class CarRentalContract extends Contract {
         }
         return responses;
     }*/
+
+    public List<RentalRegisteredEventResponse> getRentalRegisteredEvents(
+            TransactionReceipt transactionReceipt) {
+
+        List<EventValuesWithLog> valueList = extractEventParametersWithLog(
+                RENTALREGISTERED_EVENT, transactionReceipt);
+
+        ArrayList<RentalRegisteredEventResponse> responses = new ArrayList<>(
+                valueList.size());
+        for (EventValuesWithLog eventValues : valueList) {
+            RentalRegisteredEventResponse typedResponse = new RentalRegisteredEventResponse();
+            typedResponse.log = eventValues.getLog();
+            typedResponse.id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.carId = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
+            typedResponse.userId = (BigInteger) eventValues.getNonIndexedValues().get(2).getValue();
+            typedResponse.rentalDate = (BigInteger) eventValues.getNonIndexedValues().get(3).getValue();
+            responses.add(typedResponse);
+        }
+
+        return responses;
+    }
 
     public Flowable<RentalRegisteredEventResponse> rentalRegisteredEventFlowable(EthFilter filter) {
         return web3j.ethLogFlowable(filter).map(new Function<Log, RentalRegisteredEventResponse>() {
