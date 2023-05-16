@@ -50,11 +50,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.google.maps.android.SphericalUtil
+import com.jetpackcompose.smartcars.model.Web3jSingleton
 import com.jetpackcompose.smartcars.ui.data.DataViewModel
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.map.ui.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.math.BigInteger
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -79,7 +81,7 @@ fun HomeScreen(navController: NavController) {
 }
 
 @Composable
-fun info() {
+fun Info() {
     Row(modifier = Modifier.padding(start = 70.dp)) {
         Icon(
             Icons.Outlined.Info,
@@ -549,7 +551,7 @@ fun Scaffold(navController: NavController) {
         isFloatingActionButtonDocked = true
     ) {
         Column {
-            info()
+            Info()
             nearestCar(navController = navController)
             profileMap()
             moreCars(ubicacionActual = ubicacionActual, navController = navController)
@@ -562,12 +564,54 @@ fun Scaffold(navController: NavController) {
 @Composable
 fun MyFab() {
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = {
+
+            Log.i("Boton FAB", "Funciona")
+            Thread(kotlinx.coroutines.Runnable {
+                val contract = Web3jSingleton.getCarRentalContract()
+                Log.d("VALIDATED CONTRACT", "Is valid: ${contract.isValid}")
+
+                val adminAccount = "0xdB089AA5d0c3FAC5f01FF87828801655Ebf7bB8A"
+                val wei = BigInteger.valueOf(3000000000000000)
+
+                try {
+                    val transactionReceipt = contract.updateBalance(adminAccount, wei).send()
+
+                    // Aquí puedes manejar la respuesta de la transacción
+                    if (transactionReceipt.isStatusOK) {
+                        // La transacción se completó correctamente
+                        // Realiza cualquier acción adicional o muestra un mensaje de éxito
+                        val transactionHash = transactionReceipt.transactionHash
+                        Log.i("Wei añadido OK", "Hash de la transacción: $transactionHash")
+                    } else {
+                        // La transacción falló
+                        // Muestra un mensaje de error o maneja el fallo
+                        Log.i("Wei no añadido KO", "No se realizó la transacción")
+                    }
+                } catch (e: Exception) {
+                    // Maneja cualquier excepción que ocurra durante la ejecución de la transacción
+                    Log.i("No agregado saldo", "No se realizó la transacción: $e")
+                }
+
+
+                /*val numrentals: RemoteFunctionCall<BigInteger>? = contract.numRentals()
+                Log.d("TAG", "greeting value returned: $numrentals")*/
+            }).start()},
         backgroundColor = Color(0xFFE6E6E6),
         contentColor = Color(0xFF2C2B34)
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "add")
     }
+}
+
+@Composable
+fun dialogRentCar() {
+    AlertDialog(onDismissRequest = { /*TODO*/ },
+    confirmButton = { TextButton(onClick = { /*TODO*/ }) {
+        Text(text = "Aceptar")
+    }},
+    title = { Text(text = "Alquilar") },
+    text = { Text(text = "Coche alquilado") })
 }
 
 @Composable

@@ -431,7 +431,9 @@ fun BottomSheet(
                         fontSize = 15.sp
                     )
                     Button(
-                        onClick = { onRentCarClicked() }, // Función que llama a la función de alquiler del smart contract
+                        onClick = {
+                            onRentCarClicked()
+                                  dialogRentCar()}, // Función que llama a la función de alquiler del smart contract
                         Modifier
                             .padding(start = 90.dp, end = 30.dp)
                             .height(55.dp)
@@ -502,7 +504,7 @@ fun MyGoogleMaps(
     }
 
     if (myargsP!!.shouldexp == true) {
-        when (myargsP!!.modelo) {
+        when (myargsP.modelo) {
             "Born" -> cameraPositionState.position =
                 CameraPosition.fromLatLngZoom(LatLng(36.528311, -6.295017), 17f)
             "500e" -> cameraPositionState.position =
@@ -879,7 +881,7 @@ private fun onRentCarClicked() {
                 Log.i("Transaccion OK", "Hash del alquiler: $transactionHash")
             } else {
                 // La transacción falló
-                // Muestra un mensaje de error o maneja el fallo de acuerdo a tus necesidades
+                // Muestra un mensaje de error o maneja el fallo
                 Log.i("Transaccion KO", "No se realizó la transacción")
             }
         } catch (e: Exception) {
