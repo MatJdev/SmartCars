@@ -1,6 +1,8 @@
 package com.jetpackcompose.smartcars.navigation
 
+import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,6 +16,8 @@ import com.jetpackcompose.smartcars.ui.signup.ui.SignUpScreen
 import com.jetpackcompose.smartcars.ui.welcome.ui.WelcomeScreen
 import com.jetpackcompose.smartcars.ui.home.ui.HomeScreen
 import com.jetpackcompose.smartcars.ui.map.ui.MapScreen
+import com.jetpackcompose.smartcars.ui.search.ui.SearchScreen
+
 //import com.jetpackcompose.smartcars.ui.search.ui.SearchScreen
 
 @Composable
@@ -44,9 +48,9 @@ fun AppNavigation() {
         composable(route = AppScreens.AccountScreen.route){
             AccountScreen(navController)
         }
-//        composable(route = AppScreens.SearchScreen.route){
-//            AppScreens.SearchScreen(navController)
-//        }
+        composable(route = AppScreens.SearchScreen.route){
+            SearchScreen(navController, viewModel())
+        }
         //Todo crear las demas rutas cuando estén las screens terminadas
     }
 

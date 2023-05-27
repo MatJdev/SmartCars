@@ -1,27 +1,23 @@
 package com.jetpackcompose.smartcars.ui.data
 
-import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.jetpackcompose.smartcars.ui.data.model.Car
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.firestore.CollectionReference
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.jetpackcompose.smartcars.ui.data.model.SearchWidgetState
+import androidx.compose.runtime.State
 
 
-class DataViewModel(): ViewModel(){
+class DataViewModel : ViewModel() {
     val state = mutableStateOf(ArrayList<Car?>())
+    val selectedBrand = mutableStateOf("")
+
 
     init {
         getData()
@@ -29,13 +25,44 @@ class DataViewModel(): ViewModel(){
 
     private fun getData() {
         GlobalScope.launch(Dispatchers.Main) {
-            state.value = getDataFromFireStore()
+            state.value = getDataFromFireStore(selectedBrand)
         }
+    }
+
+    fun filterCarsByBrand(brand: String) {
+        if (brand.isEmpty()) {
+            getData()
+        } else {
+            val filteredCars = state.value.filter { car ->
+                car?.marca?.contains(brand, ignoreCase = true) == true ||
+                        car?.modelo?.contains(brand, ignoreCase = true) == true
+            }
+            state.value = ArrayList(filteredCars)
+        }
+    }
+
+
+    private val _searchWidgetState: MutableState<SearchWidgetState> =
+        mutableStateOf(value = SearchWidgetState.CLOSED)
+    val searchWidgetState: State<SearchWidgetState> = _searchWidgetState
+
+    private val _searchTextState: MutableState<String> =
+        mutableStateOf(value = "")
+    val searchTextState: State<String> = _searchTextState
+
+    fun updateSearchWidgetState(newValue: SearchWidgetState) {
+        _searchWidgetState.value = newValue
+    }
+
+    fun updateSearchTextState(newValue: String) {
+        _searchTextState.value = newValue
     }
 }
 
 
-suspend fun getDataFromFireStore():ArrayList<Car?>{
+suspend fun getDataFromFireStore(selectedBrand: MutableState<String>): ArrayList<Car?> {
+
+
     val db = FirebaseFirestore.getInstance()
 
     val coleccion = db.collection("cars")
@@ -43,6 +70,7 @@ suspend fun getDataFromFireStore():ArrayList<Car?>{
     val coches = querySnapshot.documents.map { doc ->
         doc.toObject(Car::class.java)
     } as ArrayList<Car?>
+
     Log.i("Datos en dataview", coches.toString())
     return coches
 
@@ -99,8 +127,6 @@ suspend fun getDataFromFireStore():ArrayList<Car?>{
         // hacer algo con las tareas
 
     }*/
-
-
 
 
     //return tareas

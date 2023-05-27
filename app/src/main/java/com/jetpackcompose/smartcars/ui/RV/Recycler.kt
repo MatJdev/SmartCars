@@ -35,6 +35,7 @@ import com.jetpackcompose.smartcars.ui.home.ui.fichaCar
 import com.jetpackcompose.smartcars.ui.home.ui.lat
 import com.jetpackcompose.smartcars.ui.home.ui.long
 import com.jetpackcompose.smartcars.ui.map.ui.setValue
+import kotlinx.coroutines.launch
 
 
 //@Preview(showBackground = true, showSystemUi = true)
@@ -46,7 +47,7 @@ fun RvScreen(
 
     var getData = dataViewModel.state.value
     val rvState = rememberLazyListState()
-
+    val scope = rememberCoroutineScope()
 
     LazyColumn(
         state = rvState,
@@ -60,13 +61,13 @@ fun RvScreen(
         items(getData) { Car ->
             ItemCoche(Car = Car!!, onClick = {
 
-                var Arguments = MyArgs(
+                val Arguments = MyArgs(
                     marca = Car.marca,
                     modelo = Car.modelo,
                     shouldexp = true,
                     img = Car.img,
                     motor = Car.motor,
-                    distancia = 0.0 ,
+                    distancia = 0.0,
                     bateria = Car.bateria,
                     precio = Car.precio,
                     aceleracion = Car.aceleracion,
@@ -79,21 +80,21 @@ fun RvScreen(
             })
         }
     }
-}
 
-//    val showbutton by remember {
-//        derivedStateOf {
-//            rvState.firstVisibleItemIndex > 1
-//        }
-//    }
-//    if (showbutton) {
-//        Button(
-//            onClick = { coroutineScope.launch { rvState.animateScrollToItem(9) } },
-//            modifier = Modifier.padding(15.dp)
-//        ) {
-//            Text(text = "Bajar")
-//        }
-//    }
+    val showbutton by remember {
+        derivedStateOf {
+            rvState.firstVisibleItemIndex > 1
+        }
+    }
+    if (showbutton) {
+        Button(
+            onClick = { scope.launch { rvState.animateScrollToItem(9) } },
+            modifier = Modifier.padding(15.dp)
+        ) {
+            Text(text = "Bajar")
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
