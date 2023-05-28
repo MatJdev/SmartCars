@@ -18,7 +18,7 @@ object Web3jSingleton {
         web3j = Web3j.build(httpProvider)
 
         // Inicializar credenciales
-        val privateKey = "12cf8530ef593ffb0efce6c7dfc80ee32d1f3202e44b8e7f8b789099995130b7" // your private key here
+        val privateKey = "" // your private metamask account key here, sin esto no podrá hacer transacciones del smart contract, es una clave privada de la cuenta de metamask y no puedo compartir la mia
         credentials = Credentials.create(privateKey)
 
         // Inicializar instancia del contrato
