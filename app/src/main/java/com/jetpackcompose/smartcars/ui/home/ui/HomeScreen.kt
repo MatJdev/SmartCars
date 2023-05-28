@@ -160,7 +160,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 
     Log.i("Ubicacion actual", lat.toString() + long.toString())
 
-    var ubica = LatLng(lat, long)
+    val ubica = LatLng(lat, long)
 
     val getData = dataViewModel.state.value
 
@@ -209,7 +209,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
 
         scope.launch {
 
-            while (getData == null || getData.isEmpty()) {
+            while (getData.isEmpty()) {
                 delay(200L) // esperar un segundo
             }
             // ejecutar código aquí
@@ -230,7 +230,7 @@ fun nearestCar(dataViewModel: DataViewModel = viewModel(), navController: NavCon
         // No se encontró ningún objeto Car cercano
     }
 
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = marcaCar.value,
         modelo = modeloCar.value,
         shouldexp = true,
@@ -384,30 +384,30 @@ fun moreCars(
 
     val getData = dataViewModel.state.value
 
-    var marcaCar = rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar = rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar = rememberSaveable { mutableStateOf("85") }
-    var imgCar = rememberSaveable { mutableStateOf("Model S") }
-    var motorCar = rememberSaveable { mutableStateOf("85") }
-    var precioCar = rememberSaveable { mutableStateOf("Model S") }
-    var aceleracionCar = rememberSaveable { mutableStateOf("85") }
-    var maleteroCar = rememberSaveable { mutableStateOf("85") }
-    var distCar = rememberSaveable { mutableStateOf(2.0) }
+    val marcaCar = rememberSaveable { mutableStateOf("Tesla") }
+    val modeloCar = rememberSaveable { mutableStateOf("Model S") }
+    val bateriaCar = rememberSaveable { mutableStateOf("85") }
+    val imgCar = rememberSaveable { mutableStateOf("Model S") }
+    val motorCar = rememberSaveable { mutableStateOf("85") }
+    val precioCar = rememberSaveable { mutableStateOf("Model S") }
+    val aceleracionCar = rememberSaveable { mutableStateOf("85") }
+    val maleteroCar = rememberSaveable { mutableStateOf("85") }
+    val distCar = rememberSaveable { mutableStateOf(2.0) }
 
-    var marcaCar1 = rememberSaveable { mutableStateOf("Tesla") }
-    var modeloCar1 = rememberSaveable { mutableStateOf("Model S") }
-    var bateriaCar1 = rememberSaveable { mutableStateOf("85") }
-    var imgCar1 = rememberSaveable { mutableStateOf("Model S") }
-    var motorCar1 = rememberSaveable { mutableStateOf("85") }
-    var precioCar1 = rememberSaveable { mutableStateOf("Model S") }
-    var aceleracionCar1 = rememberSaveable { mutableStateOf("85") }
-    var maleteroCar1 = rememberSaveable { mutableStateOf("85") }
-    var distCar1 = rememberSaveable { mutableStateOf(2.0) }
+    val marcaCar1 = rememberSaveable { mutableStateOf("Tesla") }
+    val modeloCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val bateriaCar1 = rememberSaveable { mutableStateOf("85") }
+    val imgCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val motorCar1 = rememberSaveable { mutableStateOf("85") }
+    val precioCar1 = rememberSaveable { mutableStateOf("Model S") }
+    val aceleracionCar1 = rememberSaveable { mutableStateOf("85") }
+    val maleteroCar1 = rememberSaveable { mutableStateOf("85") }
+    val distCar1 = rememberSaveable { mutableStateOf(2.0) }
 
     val scope = rememberCoroutineScope()
     scope.launch {
 
-        while (getData == null || getData.isEmpty()) {
+        while (getData.isEmpty()) {
             delay(200L) // esperar un segundo
         }
         // ejecutar código aquí
@@ -504,7 +504,7 @@ fun moreCars(
 @Composable
 fun BottomNavigationBar(screen: String, navController: NavController) {
     //var ind by remember { mutableStateOf(0)}
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = "",
         modelo = "",
         shouldexp = false,
@@ -565,7 +565,7 @@ fun Scaffold(navController: NavController) {
 
     Log.i("Ubicacion actual", lat.toString() + long.toString())
 
-    var ubicacionActual = LatLng(lat, long)
+    val ubicacionActual = LatLng(lat, long)
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -767,7 +767,7 @@ fun miniMap() {
 
     obtenerUbicacion(LocalContext.current)
 
-    var ubicacionActu = LatLng(lat, long)
+    val ubicacionActu = LatLng(lat, long)
 
     //Indicar en position la ubicación actual del usuario
     //Para que el mapa se abra en su ubicación
@@ -799,7 +799,7 @@ fun fichaCar(
     navController: NavController
 ) {
 
-    var Arguments = MyArgs(
+    val Arguments = MyArgs(
         marca = marca.value,
         modelo = modelo.value,
         shouldexp = true,
