@@ -39,7 +39,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -51,7 +50,6 @@ import com.jetpackcompose.smartcars.model.Web3jSingleton.getCarRentalContract
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.data.model.Transactions
 import java.math.BigInteger
-import java.text.SimpleDateFormat
 import java.text.SimpleDateFormat
 import java.util.concurrent.Future
 
