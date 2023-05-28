@@ -102,7 +102,6 @@ fun CustomCard(stringCard: String, height: Int, string1: String, fontSize: Int) 
     }
 }
 
-@Preview(showSystemUi = false, showBackground = true)
 @Composable
 fun UserCard() {
     Column {

@@ -62,6 +62,8 @@ import com.jetpackcompose.smartcars.ui.map.ui.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigInteger
+import kotlinx.coroutines.flow.collect
+import com.jetpackcompose.smartcars.ui.data.model.User
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -369,7 +371,6 @@ fun profileMap(navController: NavController) {
             miniMap()
         }
     }
-
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -875,7 +876,6 @@ fun fichaCar(
                     )
                 }
             }
-
         }
     }
 }

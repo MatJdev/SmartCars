@@ -44,12 +44,16 @@ import androidx.compose.ui.window.Dialog
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
 import com.google.gson.Gson
 import com.jetpackcompose.smartcars.model.Web3jSingleton.getCarRentalContract
 import com.jetpackcompose.smartcars.ui.data.model.MyArgs
 import com.jetpackcompose.smartcars.ui.data.model.Transactions
 import java.math.BigInteger
 import java.text.SimpleDateFormat
+import java.text.SimpleDateFormat
+import java.util.concurrent.Future
 
 
 @Composable
