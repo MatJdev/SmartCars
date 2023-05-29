@@ -58,8 +58,17 @@ fun RvScreen(
     ) {
         // Esto hace que genere una card en la lazycolumn con los datos del array
         // getData del viewmodel que son los coches registrados en firebase.
+        val ubica = LatLng(lat, long)
         items(getData) { Car ->
             ItemCoche(Car = Car!!, onClick = {
+
+                val distancia1 = SphericalUtil.computeDistanceBetween(
+                    ubica,
+                    LatLng(Car.latitud, Car.longitud)
+                )
+                Log.i("Distancia2", "%.2f".format(distancia1) + " metros")
+
+                val distkm = distancia1 / 1000
 
                 val Arguments = MyArgs(
                     marca = Car.marca,
@@ -67,7 +76,7 @@ fun RvScreen(
                     shouldexp = true,
                     img = Car.img,
                     motor = Car.motor,
-                    distancia = 0.0,
+                    distancia = distkm,
                     bateria = Car.bateria,
                     precio = Car.precio,
                     aceleracion = Car.aceleracion,
