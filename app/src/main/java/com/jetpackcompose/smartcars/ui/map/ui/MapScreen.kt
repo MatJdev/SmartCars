@@ -248,7 +248,9 @@ fun BottomSheet(
                             bottomSheetScaffoldState.bottomSheetState.collapse()
                         }
                     },
-                    modifier = Modifier.padding(start = 330.dp, top = 8.dp)
+                    modifier = Modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp)
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.End)
                 ) {
                     Icon(
                         Icons.Outlined.Cancel,
@@ -311,97 +313,116 @@ fun BottomSheet(
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                Row() {
+                Row(Modifier.fillMaxWidth()) {
                     Card(
                         elevation = 5.dp,
                         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
                         modifier = Modifier
-                            .padding(start = 30.dp, end = 15.dp)
-                            .width(100.dp)
+                            .padding(horizontal = 10.dp)
+                            .weight(1f)
                             .height(100.dp),
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 15.dp)) {
-                            Icon(
-                                Icons.Outlined.BatteryChargingFull,
-                                contentDescription = "",
-                                Modifier
-                                    .padding(start = 10.dp, top = 12.dp)
-                                    .size(40.dp),
-                                tint = Color(0xFF2C2B34)
-                            )
-                            Text(
-                                text = motorCar.value,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(text = cargaCar.value, fontSize = 10.sp, color = Color.Gray)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Outlined.BatteryChargingFull,
+                                    contentDescription = "",
+                                    Modifier.size(40.dp),
+                                    tint = Color(0xFF2C2B34)
+                                )
+                                Text(
+                                    text = motorCar.value,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(text = cargaCar.value, fontSize = 10.sp, color = Color.Gray)
+                            }
                         }
                     }
                     Card(
                         elevation = 5.dp,
                         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
                         modifier = Modifier
-                            .padding(end = 15.dp)
-                            .width(100.dp)
+                            .padding(horizontal = 10.dp)
+                            .weight(1f)
                             .height(100.dp),
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 10.dp)) {
-                            Icon(
-                                Icons.Outlined.Speed,
-                                contentDescription = "",
-                                Modifier
-                                    .padding(start = 10.dp, top = 12.dp)
-                                    .size(40.dp),
-                                tint = Color(0xFF2C2B34)
-                            )
-                            Text(
-                                text = "Aceleración",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "0 - 100 km/h: ${aceleracionCar.value}",
-                                fontSize = 10.sp,
-                                color = Color.Gray
-                            )
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Speed,
+                                    contentDescription = "",
+                                    Modifier.size(40.dp),
+                                    tint = Color(0xFF2C2B34)
+                                )
+                                Text(
+                                    text = "Aceleración",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "0 - 100 km/h: ${aceleracionCar.value}",
+                                    fontSize = 10.sp,
+                                    color = Color.Gray
+                                )
+                            }
                         }
                     }
                     Card(
                         elevation = 5.dp,
                         border = BorderStroke(1.dp, Color(0xFFE6E6E6)),
                         modifier = Modifier
-                            .padding(end = 30.dp)
-                            .width(100.dp)
+                            .padding(horizontal = 10.dp)
+                            .weight(1f)
                             .height(100.dp),
                         backgroundColor = Color(0xFFE6E6E6),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(Modifier.padding(start = 15.dp)) {
-                            Icon(
-                                Icons.Outlined.Work,
-                                contentDescription = "",
-                                Modifier
-                                    .padding(start = 10.dp, top = 12.dp)
-                                    .size(40.dp),
-                                tint = Color(0xFF2C2B34)
-                            )
-                            Text(
-                                text = "C.Maletero",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(text = maleteroCar.value, fontSize = 10.sp, color = Color.Gray)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Work,
+                                    contentDescription = "",
+                                    Modifier.size(40.dp),
+                                    tint = Color(0xFF2C2B34)
+                                )
+                                Text(
+                                    text = "C.Maletero",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(text = maleteroCar.value, fontSize = 10.sp, color = Color.Gray)
+                            }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
 
-                Row() {
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End) {
                     Text(
                         text = "${precio.value} €", Modifier.padding(start = 45.dp, top = 10.dp),
                         fontSize = 28.sp, fontWeight = FontWeight.Bold
@@ -410,6 +431,7 @@ fun BottomSheet(
                         text = "/hora", Modifier.padding(top = 23.dp),
                         fontSize = 15.sp
                     )
+                    Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = {
                             if (btnAlquilar == "Alquilar") {
@@ -427,7 +449,7 @@ fun BottomSheet(
                             }
                         },
                         Modifier
-                            .padding(start = 90.dp, end = 30.dp)
+                            .padding(end = 30.dp)
                             .height(55.dp)
                             .width(130.dp),
                         shape = RoundedCornerShape(20.dp),
